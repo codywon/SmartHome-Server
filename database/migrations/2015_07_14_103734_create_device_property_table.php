@@ -14,9 +14,10 @@ class CreateDevicePropertyTable extends Migration
     {
         Schema::create('device_property', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('device_id');
+            $table->integer('device_id')->unsigned();
             $table->string('key');
             $table->string('value');
+            $table->foreign('device_id')->references('id')->on('devices');
             $table->timestamps();
         });
     }

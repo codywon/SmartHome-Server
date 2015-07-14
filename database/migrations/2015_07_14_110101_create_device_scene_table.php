@@ -14,8 +14,10 @@ class CreateDeviceSceneTable extends Migration
     {
         Schema::create('device_scene', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('device_id');
-            $table->integer('scene_id');
+            $table->integer('device_id')->unsigned();
+            $table->integer('scene_id')->unsigned();
+            $table->foreign('device_id')->references('id')->on('devices');
+            $table->foreign('scene_id')->references('id')->on('scenes');
             $table->timestamps();
         });
     }
