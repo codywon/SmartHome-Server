@@ -12,10 +12,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        Model::unguard();
-
-        // $this->call(UserTableSeeder::class);
-
-        Model::reguard();
+        //Model::unguard();
+        //$this->call(UserTableSeeder::class);
+        //Model::reguard();
+        factory('smarthome\User', 50)->create()->each(function($u) {
+            $count = 10;
+            while($count--)
+            {
+                $u->devices()->save(factory('smarthome\Device')->make());
+                $u->rooms()->save(factory('smarthome\Room')->make());
+                $u->messages()->save(factory('smarthome\Message')->make());
+                $u->scenes()->save(factory('smarthome\Scene')->make());
+            }
+        });
     }
 }
