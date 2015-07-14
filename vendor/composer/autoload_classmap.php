@@ -6,7 +6,15 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'CreateDevicePropertyTable' => $baseDir . '/database/migrations/2015_07_14_103734_create_device_property_table.php',
+    'CreateDeviceSceneTable' => $baseDir . '/database/migrations/2015_07_14_110101_create_device_scene_table.php',
+    'CreateDevicesTable' => $baseDir . '/database/migrations/2015_07_14_103726_create_devices_table.php',
+    'CreateMessagesTable' => $baseDir . '/database/migrations/2015_07_14_102131_create_messages_table.php',
     'CreatePasswordResetsTable' => $baseDir . '/database/migrations/2014_10_12_100000_create_password_resets_table.php',
+    'CreateRoleUserTable' => $baseDir . '/database/migrations/2015_07_14_101802_create_role_user_table.php',
+    'CreateRolesTable' => $baseDir . '/database/migrations/2015_07_14_101753_create_roles_table.php',
+    'CreateRoomsTable' => $baseDir . '/database/migrations/2015_07_14_101935_create_rooms_table.php',
+    'CreateScenesTable' => $baseDir . '/database/migrations/2015_07_14_102107_create_scenes_table.php',
     'CreateUsersTable' => $baseDir . '/database/migrations/2014_10_12_000000_create_users_table.php',
     'DatabaseSeeder' => $baseDir . '/database/seeds/DatabaseSeeder.php',
     'File_Iterator' => $vendorDir . '/phpunit/php-file-iterator/src/Iterator.php',
