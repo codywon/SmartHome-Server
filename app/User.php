@@ -32,4 +32,24 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      * @var array
      */
     protected $hidden = ['password', 'remember_token'];
+
+    public function devices()
+    {
+         return $this->hasMany('smarthome\Device');
+    }
+
+    public function messages()
+    {
+        return $this->hasMany('smarthome\Message');
+    }
+
+    public function rooms()
+    {
+        return $this->hasMany('smarthome\Room');
+    }
+
+    public function scenes()
+    {
+        return $this->hasMany('smarthome\Scene');
+    }
 }
