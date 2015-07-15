@@ -12,4 +12,9 @@ class Device extends Model
     {
         return $this->belongsTo('smarthome\User');
     }
+
+    public function properties()
+    {
+        return $this->hasMany('smarthome\DeviceProperty');
+    }
 }

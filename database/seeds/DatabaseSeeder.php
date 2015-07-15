@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Seeder;
 use Illuminate\Database\Eloquent\Model;
+use smarthome\Device;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,9 +16,11 @@ class DatabaseSeeder extends Seeder
         //Model::unguard();
         //$this->call(UserTableSeeder::class);
         //Model::reguard();
-        factory('smarthome\User', 50)->create()->each(function($u) {
-            $count = 10;
-            while($count--)
+        $userNum = 50;
+        $count = 10;
+        factory('smarthome\User', $userNum)->create()->each(function($u) {
+            $deviceNum = 10;
+            while($deviceNum--)
             {
                 $u->devices()->save(factory('smarthome\Device')->make());
                 $u->rooms()->save(factory('smarthome\Room')->make());
@@ -25,5 +28,16 @@ class DatabaseSeeder extends Seeder
                 $u->scenes()->save(factory('smarthome\Scene')->make());
             }
         });
+
+        $propertyNum = $count*$userNum;
+        while($propertyNum)
+        {
+            Device::find($propertyNum)->properties()->save(factory('smarthome\DeviceProperty')->make());
+            Device::find($propertyNum)->properties()->save(factory('smarthome\DeviceProperty')->make());
+            Device::find($propertyNum)->properties()->save(factory('smarthome\DeviceProperty')->make());
+            Device::find($propertyNum)->properties()->save(factory('smarthome\DeviceProperty')->make());
+            Device::find($propertyNum)->properties()->save(factory('smarthome\DeviceProperty')->make());
+            $propertyNum--;
+        }
     }
 }

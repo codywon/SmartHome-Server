@@ -21,11 +21,18 @@ $factory->define(smarthome\User::class, function (Faker\Generator $faker) {
     ];
 });
 
-$factory->define(smarthome\Device::class, function (Faker\Generator $faker) {
+$factory->define(smarthome\Device::class, function (Faker\Generator $faker) use ($factory) {
     return [
         'name' => str_random(8),
         'infrared' => rand(0,1) == 1,
         'status' => rand(0,1) == 1,
+    ];
+});
+
+$factory->define(smarthome\DeviceProperty::class, function (Faker\Generator $faker) {
+    return [
+        'key' => str_random(8),
+        'value' => str_random(16),
     ];
 });
 
