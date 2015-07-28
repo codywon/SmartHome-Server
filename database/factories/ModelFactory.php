@@ -15,6 +15,7 @@ $factory->define(smarthome\User::class, function (Faker\Generator $faker) {
     return [
         'name' => $faker->name,
         'email' => $faker->email,
+        'phone' => str_random(11),
         'password' => str_random(10),
         'remember_token' => str_random(10),
         'role' => rand(0, 3),
@@ -24,8 +25,9 @@ $factory->define(smarthome\User::class, function (Faker\Generator $faker) {
 $factory->define(smarthome\Device::class, function (Faker\Generator $faker) use ($factory) {
     return [
         'name' => str_random(8),
+        'type' => rand(0,10),
         'infrared' => rand(0,1) == 1,
-        'status' => rand(0,1) == 1,
+        'status' => rand(0,2),
     ];
 });
 
@@ -56,6 +58,11 @@ $factory->define(smarthome\Room::class, function (Faker\Generator $faker) {
 $factory->define(smarthome\Scene::class, function (Faker\Generator $faker) {
     return [
         'name' => str_random(5),
+    ];
+});
+
+$factory->define(smarthome\DeviceScene::class, function (Faker\Generator $faker) {
+    return [
     ];
 });
 

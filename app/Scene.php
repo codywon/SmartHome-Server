@@ -12,4 +12,9 @@ class Scene extends Model
     {
         return $this->belongsTo('smarthome\User');
     }
+
+    public function devices()
+    {
+        return $this->belongsToMany('smarthome\Device');
+    }
 }

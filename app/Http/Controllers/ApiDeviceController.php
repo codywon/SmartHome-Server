@@ -11,7 +11,7 @@ use smarthome\Http\Controllers\Controller;
 
 use smarthome\Device;
 
-class DeviceController extends Controller
+class ApiDeviceController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -40,20 +40,32 @@ class DeviceController extends Controller
      */
     public function store(Request $request)
     {
-        $name = $request->input('name');
-        $bInfrared = $request->input('infrared') == 'true';
+        if(Auth::check()){
+            $user = Auth::user();
+            Log::info('user info: '.$user->toJson());
 
-        $user = $request->user;
-        Log::info('user info'.$user->toJson());
+            $name = $request->input('name');
+            $type = $request->input('type');
+            $room_id = $request->input('room_id');
+            $bInfrared = $request->input('infrared') == 'true';
 
-        $user->devices()->save(new Device([
-            'name' => $name,
-            'infrared' => $bInfrared,
-            'status' => '',
-        ]));
-        Log::info('add device: '.$name.'ifInfrared: '.$bInfrared);
+            Log::info('infrared value: '.$request->input('infrared').'type: '.$type.'name: '.$name);
 
-        return Response::json(array('result'=>'success'));
+            $device = new Device([
+                'name' => $name,
+                'type' => $type,
+                'room_id' => $room_id,
+                'infrared' => $bInfrared,
+                'status' => 0,
+            ]);
+
+            $user->devices()->save($device);
+
+            return $device->toJson();
+        }else{
+            return json_encode(array('result'=>'failed', 'reason'=>'do not login'));
+        }
+
     }
 
     /**
@@ -65,6 +77,8 @@ class DeviceController extends Controller
     public function show($id)
     {
         if(Auth::check()){
+            $user = Auth::user();
+            Log::info('user info: '.$user->toJson());
             return Device::find($id)->toJson();
         }else{
             return json_encode(array('result'=>'failed', 'reason'=>'do not login'));

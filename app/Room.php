@@ -12,4 +12,9 @@ class Room extends Model
     {
         return $this->belongsTo('smarthome\User');
     }
+
+    public function devices()
+    {
+         return $this->hasMany('smarthome\Device');
+    }
 }

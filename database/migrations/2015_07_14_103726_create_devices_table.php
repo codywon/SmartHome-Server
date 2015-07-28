@@ -15,9 +15,11 @@ class CreateDevicesTable extends Migration
         Schema::create('devices', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('user_id')->unsigned();
+            $table->integer('room_id')->unsigned();
             $table->string('name');
+            $table->integer('type')->unsigned();
             $table->boolean('infrared')->default(false);
-            $table->string('status')->nullable();
+            $table->integer('status')->default(0);
             $table->foreign('user_id')->references('id')->on('users');
             $table->timestamps();
         });
