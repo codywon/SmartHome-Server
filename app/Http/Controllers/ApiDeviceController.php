@@ -79,6 +79,11 @@ class ApiDeviceController extends Controller
         if(Auth::check()){
             $user = Auth::user();
             Log::info('user info: '.$user->toJson());
+
+            $device = $user->devices()->find($id);
+            if(is_null($device)){
+                return json_encode(array('result'=>'failed', 'reason'=>'no such item'));
+            }
             return Device::find($id)->toJson();
         }else{
             return json_encode(array('result'=>'failed', 'reason'=>'do not login'));
@@ -105,7 +110,35 @@ class ApiDeviceController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        if(Auth::check()){
+            $user = Auth::user();
+            Log::info('user info: '.$user->toJson());
+
+            $device = $user->devices()->find($id);
+            if(is_null($device)){
+                return json_encode(array('result'=>'failed', 'reason'=>'no such item'));
+            }
+
+            $name = $request->input("name");
+            if(!empty($name)){
+                 $device->name = $name;
+            }
+
+            $room_id = $request->input("room_id");
+            if(!empty($room_id)){
+                 $device->room_id = $room_id;
+            }
+
+            $infrared = $request->input("infrared");
+            if(!empty($infrared)){
+                 $device->infrared = $infrared == "true";
+            }
+            $device->save();
+
+            return $device->toJson();
+        }else{
+            return json_encode(array('result'=>'failed', 'reason'=>'do not login'));
+        }
     }
 
     /**
@@ -116,6 +149,20 @@ class ApiDeviceController extends Controller
      */
     public function destroy($id)
     {
-        //
+        if(Auth::check()){
+            $user = Auth::user();
+            Log::info('user info: '.$user->toJson());
+
+            $device = $user->devices()->find($id);
+            if(is_null($device)){
+                return json_encode(array('result'=>'failed', 'reason'=>'no such item'));
+            }
+
+            Device::destroy($id);
+
+            return json_encode(array('result'=>'success'));
+        }else{
+            return json_encode(array('result'=>'failed', 'reason'=>'do not login'));
+        }
     }
 }
