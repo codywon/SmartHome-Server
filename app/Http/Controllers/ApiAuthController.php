@@ -19,11 +19,11 @@ class ApiAuthController extends Controller
             // Authentication passed...
             Log::info('login successful');
             $res = $request->user()->toArray();
-            $res['result'] = 'success';
+            $res['error'] = 0;
             return json_encode($res);
         }else{
             Log::info('login failed');
-            return json_encode(array('result'=>'failed'));
+            return json_encode(array('error'=>101));
         }
     }
 
@@ -40,12 +40,12 @@ class ApiAuthController extends Controller
 
         $bExistEmail= User::where('email', $email)->count() > 0;
         if($bExistEmail){
-             return json_encode(array('result'=>'failed', 'reason' => 'This email has already registed'));
+             return json_encode(array('error'=>102, 'reason' => 'This email has already registed'));
         }
 
         $bExistPhone= User::where('phone', $phone)->count() > 0;
         if($bExistPhone){
-             return json_encode(array('result'=>'failed', 'reason' => 'This phone number has already registed'));
+             return json_encode(array('error'=>103, 'reason' => 'This phone number has already registed'));
         }
 
         User::create([

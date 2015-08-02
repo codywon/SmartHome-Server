@@ -18,6 +18,8 @@ class CreateDevicesTable extends Migration
             $table->integer('room_id')->unsigned();
             $table->string('name');
             $table->integer('type')->unsigned();
+            $table->integer('brand')->nullable();
+            $table->integer('model')->nullable();
             $table->boolean('infrared')->default(false);
             $table->integer('status')->default(0);
             $table->foreign('user_id')->references('id')->on('users');

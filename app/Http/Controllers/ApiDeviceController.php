@@ -47,6 +47,8 @@ class ApiDeviceController extends Controller
             $name = $request->input('name');
             $type = $request->input('type');
             $room_id = $request->input('room_id');
+            $brand = $request->input('brand');
+            $model = $request->input('model');
             $bInfrared = $request->input('infrared') == 'true';
 
             Log::info('infrared value: '.$request->input('infrared').'type: '.$type.'name: '.$name);
@@ -55,15 +57,19 @@ class ApiDeviceController extends Controller
                 'name' => $name,
                 'type' => $type,
                 'room_id' => $room_id,
+                'brand' => $brand,
+                'model' => $model,
                 'infrared' => $bInfrared,
                 'status' => 0,
             ]);
 
             $user->devices()->save($device);
 
-            return $device->toJson();
+            $res = $device->toArray();
+            $res['error'] = 0;
+            return json_encode($res);
         }else{
-            return json_encode(array('result'=>'failed', 'reason'=>'do not login'));
+            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
         }
 
     }
@@ -82,11 +88,14 @@ class ApiDeviceController extends Controller
 
             $device = $user->devices()->find($id);
             if(is_null($device)){
-                return json_encode(array('result'=>'failed', 'reason'=>'no such item'));
+                return json_encode(array('error'=>104, 'reason'=>'no such item'));
             }
-            return Device::find($id)->toJson();
+
+            $res = Device::find($id)->toArray();
+            $res['error'] = 0;
+            return json_encode($res);
         }else{
-            return json_encode(array('result'=>'failed', 'reason'=>'do not login'));
+            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
         }
     }
 
@@ -116,7 +125,7 @@ class ApiDeviceController extends Controller
 
             $device = $user->devices()->find($id);
             if(is_null($device)){
-                return json_encode(array('result'=>'failed', 'reason'=>'no such item'));
+                return json_encode(array('error'=>104, 'reason'=>'no such item'));
             }
 
             $name = $request->input("name");
@@ -129,15 +138,27 @@ class ApiDeviceController extends Controller
                  $device->room_id = $room_id;
             }
 
+            $brand = $request->input("brand");
+            if(!empty($brand)){
+                 $device->brand = $brand;
+            }
+
+            $model = $request->input("model");
+            if(!empty($model)){
+                 $device->model = $model;
+            }
+
             $infrared = $request->input("infrared");
             if(!empty($infrared)){
                  $device->infrared = $infrared == "true";
             }
             $device->save();
 
-            return $device->toJson();
+            $res = $device->toArray();
+            $res['error'] = 0;
+            return json_encode($res);
         }else{
-            return json_encode(array('result'=>'failed', 'reason'=>'do not login'));
+            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
         }
     }
 
@@ -155,14 +176,14 @@ class ApiDeviceController extends Controller
 
             $device = $user->devices()->find($id);
             if(is_null($device)){
-                return json_encode(array('result'=>'failed', 'reason'=>'no such item'));
+                return json_encode(array('error'=>104, 'reason'=>'no such item'));
             }
 
             Device::destroy($id);
 
-            return json_encode(array('result'=>'success'));
+            return json_encode(array('error'=> 0));
         }else{
-            return json_encode(array('result'=>'failed', 'reason'=>'do not login'));
+            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
         }
     }
 }
