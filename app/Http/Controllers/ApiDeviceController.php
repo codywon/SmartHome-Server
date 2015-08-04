@@ -20,7 +20,22 @@ class ApiDeviceController extends Controller
      */
     public function index()
     {
-        //
+        if(Auth::check()){
+            $user = Auth::user();
+            Log::info('user info: '.$user->toJson());
+
+            $res = $user->devices->toArray();
+            //foreach($user->devices() as $device){
+            //    Log::info($device->toArray());
+            //    array_push($res, $device->toArray());
+            //}
+            $res['total'] = $user->devices->count();
+            $res['error'] = 0;
+            return json_encode($res);
+
+        }else{
+            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+        }
     }
 
     /**

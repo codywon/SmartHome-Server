@@ -37,7 +37,7 @@ Route::group(['prefix' => 'api'], function(){
     Route::post('/register', 'ApiAuthController@register');
 
     Route::resource('device', 'ApiDeviceController',
-                    ['only' => ['show', 'store', 'update', 'destroy']]);
+                    ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
 
     Route::get('/users', function () {
         return User::all()->toJson();
