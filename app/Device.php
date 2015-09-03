@@ -8,7 +8,7 @@ class Device extends Model
 {
     protected $table = 'devices';
 
-    protected $fillable = ['name', 'room_id', 'type', 'infrared', 'brand', 'model', 'status'];
+    protected $fillable = ['name', 'room_id', 'type', 'infrared', 'brand', 'model', 'nodeID', 'address', 'status'];
 
     public function user()
     {
@@ -23,10 +23,5 @@ class Device extends Model
     public function properties()
     {
         return $this->hasMany('smarthome\DeviceProperty');
-    }
-
-    public function scenes()
-    {
-        return $this->belongsToMany('smarthome\Scene');
     }
 }

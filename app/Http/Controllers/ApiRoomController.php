@@ -9,9 +9,9 @@ use Illuminate\Http\Request;
 use smarthome\Http\Requests;
 use smarthome\Http\Controllers\Controller;
 
-use smarthome\Device;
+use smarthome\Room;
 
-class ApiDeviceController extends Controller
+class ApiRoomController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -24,12 +24,12 @@ class ApiDeviceController extends Controller
             $user = Auth::user();
             Log::info('user info: '.$user->toJson());
 
-            $res = $user->devices->toArray();
+            $res = $user->rooms->toArray();
             //foreach($user->devices() as $device){
             //    Log::info($device->toArray());
             //    array_push($res, $device->toArray());
             //}
-            $res['total'] = $user->devices->count();
+            $res['total'] = $user->rooms->count();
             $res['error'] = 0;
             return json_encode($res);
 
@@ -60,31 +60,18 @@ class ApiDeviceController extends Controller
             Log::info('user info: '.$user->toJson());
 
             $name = $request->input('name');
-            $type = $request->input('type');
-            $room_id = $request->input('room_id');
-            $brand = $request->input('brand');
-            $model = $request->input('model');
-            $nodeID = $request->input('nodeID');
-            $address = $request->input('address');
-            $bInfrared = $request->input('infrared') == 'true';
+            $floor = $request->input('floor');
 
             Log::info('infrared value: '.$request->input('infrared').'type: '.$type.'name: '.$name);
 
-            $device = new Device([
+            $room = new Room([
                 'name' => $name,
-                'type' => $type,
-                'room_id' => $room_id,
-                'brand' => $brand,
-                'model' => $model,
-                'nodeID' => $nodeID,
-                'address' => $address,
-                'infrared' => $bInfrared,
-                'status' => 0,
+                'floor' => $floor,
             ]);
 
-            $user->devices()->save($device);
+            $user->rooms()->save($room);
 
-            $res = $device->toArray();
+            $res = $room->toArray();
             $res['error'] = 0;
             return json_encode($res);
         }else{
@@ -105,12 +92,12 @@ class ApiDeviceController extends Controller
             $user = Auth::user();
             Log::info('user info: '.$user->toJson());
 
-            $device = $user->devices()->find($id);
-            if(is_null($device)){
+            $room = $user->rooms()->find($id);
+            if(is_null($room)){
                 return json_encode(array('error'=>104, 'reason'=>'no such item'));
             }
 
-            $res = Device::find($id)->toArray();
+            $res = Room::find($id)->toArray();
             $res['error'] = 0;
             return json_encode($res);
         }else{
@@ -142,48 +129,24 @@ class ApiDeviceController extends Controller
             $user = Auth::user();
             Log::info('user info: '.$user->toJson());
 
-            $device = $user->devices()->find($id);
-            if(is_null($device)){
+            $room = $user->rooms()->find($id);
+            if(is_null($room)){
                 return json_encode(array('error'=>104, 'reason'=>'no such item'));
             }
 
             $name = $request->input("name");
             if(!empty($name)){
-                 $device->name = $name;
+                 $room->name = $name;
             }
 
-            $room_id = $request->input("room_id");
-            if(!empty($room_id)){
-                 $device->room_id = $room_id;
+            $floor = $request->input("floor");
+            if(!empty($floor)){
+                 $room->floor = $floor;
             }
 
-            $brand = $request->input("brand");
-            if(!empty($brand)){
-                 $device->brand = $brand;
-            }
+            $room->save();
 
-            $model = $request->input("model");
-            if(!empty($model)){
-                 $device->model = $model;
-            }
-
-            $nodeID = $request->input("nodeID");
-            if(!empty($nodeID)){
-                 $device->nodeID = $nodeID;
-            }
-
-            $address = $request->input("address");
-            if(!empty($address)){
-                 $device->address = $address;
-            }
-
-            $infrared = $request->input("infrared");
-            if(!empty($infrared)){
-                 $device->infrared = $infrared == "true";
-            }
-            $device->save();
-
-            $res = $device->toArray();
+            $res = $room->toArray();
             $res['error'] = 0;
             return json_encode($res);
         }else{
@@ -203,12 +166,12 @@ class ApiDeviceController extends Controller
             $user = Auth::user();
             Log::info('user info: '.$user->toJson());
 
-            $device = $user->devices()->find($id);
-            if(is_null($device)){
+            $room = $user->rooms()->find($id);
+            if(is_null($room)){
                 return json_encode(array('error'=>104, 'reason'=>'no such item'));
             }
 
-            Device::destroy($id);
+            Room::destroy($id);
 
             return json_encode(array('error'=> 0));
         }else{

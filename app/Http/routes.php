@@ -39,6 +39,9 @@ Route::group(['prefix' => 'api'], function(){
     Route::resource('device', 'ApiDeviceController',
                     ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
 
+    Route::resource('room', 'ApiRoomController',
+                    ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
+
     Route::get('/users', function () {
         return User::all()->toJson();
     });
