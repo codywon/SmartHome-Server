@@ -4,10 +4,11 @@ namespace Illuminate\Database;
 
 use PDO;
 use Closure;
-use DateTime;
 use Exception;
+use Throwable;
 use LogicException;
 use RuntimeException;
+use DateTimeInterface;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Database\Query\Expression;
@@ -434,10 +435,10 @@ class Connection implements ConnectionInterface
         $grammar = $this->getQueryGrammar();
 
         foreach ($bindings as $key => $value) {
-            // We need to transform all instances of the DateTime class into an actual
+            // We need to transform all instances of DateTimeInterface into the actual
             // date string. Each query grammar maintains its own date string format
             // so we'll just ask the grammar for the format to get from the date.
-            if ($value instanceof DateTime) {
+            if ($value instanceof DateTimeInterface) {
                 $bindings[$key] = $value->format($grammar->getDateFormat());
             } elseif ($value === false) {
                 $bindings[$key] = 0;
@@ -453,7 +454,7 @@ class Connection implements ConnectionInterface
      * @param  \Closure  $callback
      * @return mixed
      *
-     * @throws \Exception
+     * @throws \Throwable
      */
     public function transaction(Closure $callback)
     {
@@ -472,6 +473,10 @@ class Connection implements ConnectionInterface
         // up in the database. Then we'll re-throw the exception so it can
         // be handled how the developer sees fit for their applications.
         catch (Exception $e) {
+            $this->rollBack();
+
+            throw $e;
+        } catch (Throwable $e) {
             $this->rollBack();
 
             throw $e;
@@ -672,6 +677,7 @@ class Connection implements ConnectionInterface
             'server has gone away',
             'no connection to the server',
             'Lost connection',
+            'is dead or not enabled',
         ]);
     }
 
@@ -727,7 +733,7 @@ class Connection implements ConnectionInterface
             $this->events->fire('illuminate.query', [$query, $bindings, $time, $this->getName()]);
         }
 
-        if (!$this->loggingQueries) {
+        if (! $this->loggingQueries) {
             return;
         }
 
@@ -769,6 +775,16 @@ class Connection implements ConnectionInterface
     protected function getElapsedTime($start)
     {
         return round((microtime(true) - $start) * 1000, 2);
+    }
+
+    /**
+     * Is Doctrine available?
+     *
+     * @return bool
+     */
+    public function isDoctrineAvailable()
+    {
+        return class_exists('Doctrine\DBAL\Connection');
     }
 
     /**

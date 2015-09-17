@@ -10,6 +10,7 @@ use smarthome\Http\Requests;
 use smarthome\Http\Controllers\Controller;
 
 use smarthome\Device;
+use smarthome\DeviceCommand;
 
 class ApiDeviceController extends Controller
 {
@@ -146,13 +147,19 @@ class ApiDeviceController extends Controller
                 Log::error('[DEVICE] [ACTION] missing parameter [devices]');
                 return json_encode(array('error'=>201, 'reason'=>'missing parameter [devices]'));
             }
-            foreach(explode(',', $devices) as $id_action){
-                $arr = array();
-                parse_str($id_action, $arr);
-                foreach($arr as $deviceID=>$action){
-                    // TODO perform operations on a certain device
-                }
-            }
+
+            $params = array();
+            $params['devices'] = $devices;
+            DeviceCommand::run($user->id, $params);
+
+            return json_encode(array('error'=>0));
+            //foreach(explode(',', $devices) as $id_action){
+            //    $arr = array();
+            //    parse_str($id_action, $arr);
+            //    foreach($arr as $deviceID=>$action){
+            //        // TODO perform operations on a certain device
+            //    }
+            //}
         }else{
             Log::error('[DEVICE] [ACTION] user is not login');
             return json_encode(array('error'=>100, 'reason'=>'user is not login'));

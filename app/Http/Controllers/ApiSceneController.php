@@ -134,12 +134,11 @@ class ApiSceneController extends Controller
                 return json_encode(array('error'=>104, 'reason'=>'no such item'));
             }
 
-            $devices = $scene->device();
-            if(!is_null($devices)){
-                foreach($devices as $device){
-                    // perform operations on a certain device
-                }
-            }
+            $devices = $scene->devices();
+
+            $params = array();
+            $params['devices'] = $devices;
+            DeviceCommand::run($user->id, $params);
 
             return json_encode(array('error'=>0));
         }else{
