@@ -13,17 +13,44 @@ class ApiAuthController extends Controller
 {
     public function login(Request $request){
         $email = $request->input('email');
+        $phone = $request->input('phone');
         $password = $request->input('password');
-        Log::info('email: '.$email.'password: '.$password);
-        if (Auth::attempt(['email' => $email, 'password' => $password])) {
-            // Authentication passed...
-            Log::info('login successful');
-            $res = $request->user()->toArray();
-            $res['error'] = 0;
-            return json_encode($res);
-        }else{
-            Log::info('login failed');
-            return json_encode(array('error'=>101));
+        Log::info('email:'.$email.' phone:'.$phone.' password:'.$password);
+
+        if(!$email && !$phone){
+            Log::info('register failed, email/phone is empty');
+             return json_encode(array('error'=>105));
+        }
+
+        if(!$password){
+            Log::info('register failed, password is empty');
+             return json_encode(array('error'=>106));
+        }
+
+        if(!empty($email)){
+            if (Auth::attempt(['email' => $email, 'password' => $password])) {
+                // Authentication passed...
+                Log::info('login successful');
+                $res = $request->user()->toArray();
+                $res['error'] = 0;
+                return json_encode($res);
+            }else{
+                Log::info('login failed');
+                return json_encode(array('error'=>101));
+            }
+        }
+
+        if(!empty($phone)){
+            if (Auth::attempt(['phone' => $phone, 'password' => $password])) {
+                // Authentication passed...
+                Log::info('login successful');
+                $res = $request->user()->toArray();
+                $res['error'] = 0;
+                return json_encode($res);
+            }else{
+                Log::info('login failed');
+                return json_encode(array('error'=>101));
+            }
         }
     }
 
@@ -33,10 +60,29 @@ class ApiAuthController extends Controller
         $phone = $request->input('phone');
         $password = $request->input('password');
 
+        $bUserNameEmpty = false;
         if(!$name){
              $name = "";
         }
-        Log::info('register info, email: '.$email.'password: '.$password);
+        if(!$email && !$phone){
+            Log::info('register failed, email/phone is empty');
+             return json_encode(array('error'=>105));
+        }
+
+        if(!$password){
+            Log::info('register failed, password is empty');
+             return json_encode(array('error'=>106));
+        }
+
+        if(!$email){
+            $email = "";
+        }
+
+        if(!$phone){
+             $phone = "";
+        }
+
+        Log::info('register info, name:'.$name.' email:'.$email.' phone:'.$phone.' password: '.$password);
 
         $bExistEmail= User::where('email', $email)->count() > 0;
         if($bExistEmail){

@@ -22,18 +22,21 @@ class ApiSceneController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('user info: '.$user->toJson());
+            Log::info('[SCENE] [INDEX] user info: '.$user->toJson());
 
-            $res = $user->scenes->toArray();
+            $scenes = $user->scenes->toArray();
             //foreach($user->devices() as $device){
             //    Log::info($device->toArray());
             //    array_push($res, $device->toArray());
             //}
+            $res = array();
             $res['total'] = $user->scenes->count();
             $res['error'] = 0;
+            $res['scenes'] = $scenes;
             return json_encode($res);
 
         }else{
+            Log::error('[SCENE] [INDEX] user is not login');
             return json_encode(array('error'=>100, 'reason'=>'user is not login'));
         }
     }
@@ -57,12 +60,12 @@ class ApiSceneController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('user info: '.$user->toJson());
+            Log::info('[SCENE] [ADD] user info: '.$user->toJson());
 
             $name = $request->input('name');
             $devices = $request->input('devices');
 
-            Log::info('devices: '.$devices.'name: '.$name);
+            Log::info('[SCENE] [ADD] devices: '.$devices.'name: '.$name);
 
             $scene = new Scene([
                 'name' => $name,
@@ -75,6 +78,7 @@ class ApiSceneController extends Controller
             $res['error'] = 0;
             return json_encode($res);
         }else{
+            Log::error('[SCENE] [ADD] user is not login');
             return json_encode(array('error'=>100, 'reason'=>'user is not login'));
         }
 
@@ -90,10 +94,11 @@ class ApiSceneController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('user info: '.$user->toJson());
+            Log::info('[SCENE] [QUERY] user info: '.$user->toJson());
 
             $scene = $user->scenes()->find($id);
             if(is_null($scene)){
+                Log::error('[SCENE] [QUERY] uid:'.$user->id.' no such item:'.$id);
                 return json_encode(array('error'=>104, 'reason'=>'no such item'));
             }
 
@@ -101,6 +106,7 @@ class ApiSceneController extends Controller
             $res['error'] = 0;
             return json_encode($res);
         }else{
+            Log::error('[SCENE] [QUERY] user is not login');
             return json_encode(array('error'=>100, 'reason'=>'user is not login'));
         }
     }
@@ -116,6 +122,32 @@ class ApiSceneController extends Controller
         //
     }
 
+    public function open(Request $request, $id)
+    {
+        if(Auth::check()){
+            $user = Auth::user();
+            Log::info('[SCENE] [UPDATE] user info: '.$user->toJson());
+
+            $scene = $user->scenes()->find($id);
+            if(is_null($scene)){
+                Log::error('[SCENE] [UPDATE] uid:'.$user->id.' no such item:'.$id);
+                return json_encode(array('error'=>104, 'reason'=>'no such item'));
+            }
+
+            $devices = $scene->device();
+            if(!is_null($devices)){
+                foreach($devices as $device){
+                    // perform operations on a certain device
+                }
+            }
+
+            return json_encode(array('error'=>0));
+        }else{
+            Log::error('[SCENE] [UPDATE] user is not login');
+            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+        }
+    }
+
     /**
      * Update the specified resource in storage.
      *
@@ -127,10 +159,11 @@ class ApiSceneController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('user info: '.$user->toJson());
+            Log::info('[SCENE] [UPDATE] user info: '.$user->toJson());
 
             $scene = $user->scenes()->find($id);
             if(is_null($scene)){
+                Log::error('[SCENE] [UPDATE] uid:'.$user->id.' no such item:'.$id);
                 return json_encode(array('error'=>104, 'reason'=>'no such item'));
             }
 
@@ -150,6 +183,7 @@ class ApiSceneController extends Controller
             $res['error'] = 0;
             return json_encode($res);
         }else{
+            Log::error('[SCENE] [UPDATE] user is not login');
             return json_encode(array('error'=>100, 'reason'=>'user is not login'));
         }
     }
@@ -164,10 +198,11 @@ class ApiSceneController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('user info: '.$user->toJson());
+            Log::info('[SCENE] [DELETE] user info: '.$user->toJson());
 
             $scene = $user->scenes()->find($id);
             if(is_null($scene)){
+                Log::error('[SCENE] [DELETE] uid:'.$user->id.' no such item:'.$id);
                 return json_encode(array('error'=>104, 'reason'=>'no such item'));
             }
 
@@ -175,6 +210,7 @@ class ApiSceneController extends Controller
 
             return json_encode(array('error'=> 0));
         }else{
+            Log::error('[SCENE] [DELETE] user is not login');
             return json_encode(array('error'=>100, 'reason'=>'user is not login'));
         }
     }

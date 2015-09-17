@@ -38,9 +38,14 @@ Route::group(['prefix' => 'api'], function(){
 
     Route::resource('device', 'ApiDeviceController',
                     ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
+    Route::post('/device/action', 'ApiDeviceController@action');
+    Route::post('/scene/{id}/open', 'ApiSceneController@open');
 
     Route::resource('room', 'ApiRoomController',
                     ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
+
+    Route::get('/room/{id}/device', 'ApiRoomController@getDevice');
+    Route::post('/room/{id}/device', 'ApiRoomController@addDevice');
 
     Route::get('/users', function () {
         return User::all()->toJson();

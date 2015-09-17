@@ -8,6 +8,8 @@ class Room extends Model
 {
     protected $table = 'rooms';
 
+    protected $fillable = ['name', 'room_id', 'floor'];
+
     public function user()
     {
         return $this->belongsTo('smarthome\User');

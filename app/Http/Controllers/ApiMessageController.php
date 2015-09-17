@@ -22,15 +22,17 @@ class ApiMessageController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('user info: '.$user->toJson());
+            Log::info('[MESSAGE] [INDEX] user info: '.$user->toJson());
 
-            $res = $user->messages->toArray();
+            $messages = $user->messages->toArray();
             //foreach($user->devices() as $device){
             //    Log::info($device->toArray());
             //    array_push($res, $device->toArray());
             //}
+            $res = array();
             $res['total'] = $user->rooms->count();
             $res['error'] = 0;
+            $res['messages'] = $messages;
             return json_encode($res);
 
         }else{
@@ -67,10 +69,11 @@ class ApiMessageController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('user info: '.$user->toJson());
+            Log::info('[MESSAGE] [QUERY] user info: '.$user->toJson());
 
             $message = $user->messages()->find($id);
             if(is_null($message)){
+                Log::error('[MESSAGE] [QUERY] uid:'.$user->id.' no such item:'.$id);
                 return json_encode(array('error'=>104, 'reason'=>'no such item'));
             }
 
@@ -78,6 +81,7 @@ class ApiMessageController extends Controller
             $res['error'] = 0;
             return json_encode($res);
         }else{
+            Log::error('[MESSAGE] [QUERY] user is not login');
             return json_encode(array('error'=>100, 'reason'=>'user is not login'));
         }
     }
@@ -104,10 +108,11 @@ class ApiMessageController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('user info: '.$user->toJson());
+            Log::info('[MESSAGE] [UPDATE] user info: '.$user->toJson());
 
             $message = $user->messages()->find($id);
             if(is_null($message)){
+                Log::error('[MESSAGE] [UPDATE] uid:'.$user->id.' no such item:'.$id);
                 return json_encode(array('error'=>104, 'reason'=>'no such item'));
             }
 
@@ -122,6 +127,7 @@ class ApiMessageController extends Controller
             $res['error'] = 0;
             return json_encode($res);
         }else{
+            Log::error('[MESSAGE] [UPDATE] user is not login');
             return json_encode(array('error'=>100, 'reason'=>'user is not login'));
         }
     }
@@ -136,10 +142,11 @@ class ApiMessageController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('user info: '.$user->toJson());
+            Log::info('[MESSAGE] [DELETE] user info: '.$user->toJson());
 
             $message = $user->messages()->find($id);
             if(is_null($message)){
+                Log::error('[MESSAGE] [DELETE] uid:'.$user->id.' no such item:'.$id);
                 return json_encode(array('error'=>104, 'reason'=>'no such item'));
             }
 
@@ -147,6 +154,7 @@ class ApiMessageController extends Controller
 
             return json_encode(array('error'=> 0));
         }else{
+            Log::error('[MESSAGE] [DELETE] user is not login');
             return json_encode(array('error'=>100, 'reason'=>'user is not login'));
         }
     }

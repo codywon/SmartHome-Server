@@ -22,18 +22,21 @@ class ApiDeviceController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('user info: '.$user->toJson());
+            Log::info('[DEVICE] [INDEX] user info: '.$user->toJson());
 
-            $res = $user->devices->toArray();
+            $devices = $user->devices->toArray();
             //foreach($user->devices() as $device){
             //    Log::info($device->toArray());
             //    array_push($res, $device->toArray());
             //}
+            $res = array();
             $res['total'] = $user->devices->count();
             $res['error'] = 0;
+            $res['devices'] = $devices;
             return json_encode($res);
 
         }else{
+            Log::error('[DEVICE] [INDEX] user is not login');
             return json_encode(array('error'=>100, 'reason'=>'user is not login'));
         }
     }
@@ -57,7 +60,7 @@ class ApiDeviceController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('user info: '.$user->toJson());
+            Log::info('[DEVICE] [ADD] user info: '.$user->toJson());
 
             $name = $request->input('name');
             $type = $request->input('type');
@@ -68,7 +71,7 @@ class ApiDeviceController extends Controller
             $address = $request->input('address');
             $bInfrared = $request->input('infrared') == 'true';
 
-            Log::info('infrared value: '.$request->input('infrared').'type: '.$type.'name: '.$name);
+            Log::info('[DEVICE] [ADD] infrared value: '.$request->input('infrared').'type: '.$type.'name: '.$name);
 
             $device = new Device([
                 'name' => $name,
@@ -88,6 +91,7 @@ class ApiDeviceController extends Controller
             $res['error'] = 0;
             return json_encode($res);
         }else{
+            Log::error('[DEVICE] [ADD] user is not login');
             return json_encode(array('error'=>100, 'reason'=>'user is not login'));
         }
 
@@ -103,10 +107,11 @@ class ApiDeviceController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('user info: '.$user->toJson());
+            Log::info('[DEVICE] [QUERY] user info: '.$user->toJson());
 
             $device = $user->devices()->find($id);
             if(is_null($device)){
+                Log::error('[DEVICE] [QUERY] uid:'.$user->id.' no such item:'.$id);
                 return json_encode(array('error'=>104, 'reason'=>'no such item'));
             }
 
@@ -114,6 +119,7 @@ class ApiDeviceController extends Controller
             $res['error'] = 0;
             return json_encode($res);
         }else{
+            Log::error('[DEVICE] [QUERY] user is not login');
             return json_encode(array('error'=>100, 'reason'=>'user is not login'));
         }
     }
@@ -129,6 +135,29 @@ class ApiDeviceController extends Controller
         //
     }
 
+    public function action(Request $request)
+    {
+        if(Auth::check()){
+            $user = Auth::user();
+            Log::info('[DEVICE] [ACTION] user info: '.$user->toJson());
+
+            $devices = $request->input('devices');
+            if(empty($devices)){
+                Log::error('[DEVICE] [ACTION] missing parameter [devices]');
+                return json_encode(array('error'=>201, 'reason'=>'missing parameter [devices]'));
+            }
+            foreach(explode(',', $devices) as $id_action){
+                $arr = array();
+                parse_str($id_action, $arr);
+                foreach($arr as $deviceID=>$action){
+                    // TODO perform operations on a certain device
+                }
+            }
+        }else{
+            Log::error('[DEVICE] [ACTION] user is not login');
+            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+        }
+    }
     /**
      * Update the specified resource in storage.
      *
@@ -140,10 +169,11 @@ class ApiDeviceController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('user info: '.$user->toJson());
+            Log::info('[DEVICE] [UPDATE] user info: '.$user->toJson());
 
             $device = $user->devices()->find($id);
             if(is_null($device)){
+                Log::error('[DEVICE] [UPDATE] uid:'.$user->id.' no such item:'.$id);
                 return json_encode(array('error'=>104, 'reason'=>'no such item'));
             }
 
@@ -187,6 +217,7 @@ class ApiDeviceController extends Controller
             $res['error'] = 0;
             return json_encode($res);
         }else{
+            Log::error('[DEVICE] [UPDATE] user is not login');
             return json_encode(array('error'=>100, 'reason'=>'user is not login'));
         }
     }
@@ -201,10 +232,11 @@ class ApiDeviceController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('user info: '.$user->toJson());
+            Log::info('[DEVICE] [DELETE] user info: '.$user->toJson());
 
             $device = $user->devices()->find($id);
             if(is_null($device)){
+                Log::error('[DEVICE] [DELETE] uid:'.$user->id.' no such item:'.$id);
                 return json_encode(array('error'=>104, 'reason'=>'no such item'));
             }
 
@@ -212,6 +244,7 @@ class ApiDeviceController extends Controller
 
             return json_encode(array('error'=> 0));
         }else{
+            Log::error('[DEVICE] [DELETE] user is not login');
             return json_encode(array('error'=>100, 'reason'=>'user is not login'));
         }
     }

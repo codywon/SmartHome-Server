@@ -28,7 +28,7 @@ $factory->define(smarthome\Device::class, function (Faker\Generator $faker) use 
         'type' => rand(0,10),
         'brand' => rand(1,100),
         'model' => rand(1,200),
-        'nodeID' => rand(1,200),
+        'nodeID' => str_random(4),
         'infrared' => rand(0,1) == 1,
         'status' => rand(0,2),
     ];

@@ -22,18 +22,21 @@ class ApiRoomController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('user info: '.$user->toJson());
+            Log::info('[ROOM] [INDEX] user info: '.$user->toJson());
 
-            $res = $user->rooms->toArray();
+            $rooms = $user->rooms->toArray();
             //foreach($user->devices() as $device){
             //    Log::info($device->toArray());
             //    array_push($res, $device->toArray());
             //}
+            $res = array();
             $res['total'] = $user->rooms->count();
             $res['error'] = 0;
+            $res['rooms'] = $rooms;
             return json_encode($res);
 
         }else{
+            Log::error('[ROOM] [INDEX] user is not login');
             return json_encode(array('error'=>100, 'reason'=>'user is not login'));
         }
     }
@@ -57,12 +60,10 @@ class ApiRoomController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('user info: '.$user->toJson());
+            Log::info('[ROOM] [ADD] user info: '.$user->toJson());
 
             $name = $request->input('name');
             $floor = $request->input('floor');
-
-            Log::info('infrared value: '.$request->input('infrared').'type: '.$type.'name: '.$name);
 
             $room = new Room([
                 'name' => $name,
@@ -75,6 +76,7 @@ class ApiRoomController extends Controller
             $res['error'] = 0;
             return json_encode($res);
         }else{
+            Log::error('[ROOM] [ADD] user is not login');
             return json_encode(array('error'=>100, 'reason'=>'user is not login'));
         }
 
@@ -90,10 +92,11 @@ class ApiRoomController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('user info: '.$user->toJson());
+            Log::info('[ROOM] [QUERY] user info: '.$user->toJson());
 
             $room = $user->rooms()->find($id);
             if(is_null($room)){
+                Log::error('[ROOM] [QUERY] uid:'.$user->id.' no such item:'.$id);
                 return json_encode(array('error'=>104, 'reason'=>'no such item'));
             }
 
@@ -101,6 +104,7 @@ class ApiRoomController extends Controller
             $res['error'] = 0;
             return json_encode($res);
         }else{
+            Log::error('[ROOM] [QUERY] user is not login');
             return json_encode(array('error'=>100, 'reason'=>'user is not login'));
         }
     }
@@ -116,7 +120,7 @@ class ApiRoomController extends Controller
         //
     }
 
-    /**
+    /*
      * Update the specified resource in storage.
      *
      * @param  Request  $request
@@ -127,10 +131,11 @@ class ApiRoomController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('user info: '.$user->toJson());
+            Log::info('[ROOM] [UPDATE] user info: '.$user->toJson());
 
             $room = $user->rooms()->find($id);
             if(is_null($room)){
+                Log::error('[ROOM] [UPDATE] uid:'.$user->id.' no such item:'.$id);
                 return json_encode(array('error'=>104, 'reason'=>'no such item'));
             }
 
@@ -150,6 +155,71 @@ class ApiRoomController extends Controller
             $res['error'] = 0;
             return json_encode($res);
         }else{
+            Log::error('[ROOM] [UPDATE] user is not login');
+            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+        }
+    }
+
+    public function getDevice($id)
+    {
+        if(Auth::check()){
+            $user = Auth::user();
+            Log::info('[ROOM] [DEVICE] user info: '.$user->toJson());
+
+            $room = $user->rooms()->find($id);
+            if(is_null($room)){
+                Log::error('[ROOM] [DEVICE] uid:'.$user->id.' no such item:'.$id);
+                return json_encode(array('error'=>104, 'reason'=>'no such item'));
+            }
+
+            $devices = Room::find($id)->devices->toArray();
+            $res = array();
+            $res['devices'] = $devices;
+            $res['error'] = 0;
+
+            return json_encode($res);
+        } else{
+            Log::error('[ROOM] [DEVICE] user is not login');
+            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+        }
+    }
+
+    public function addDevice(Request $request, $id)
+    {
+        if(Auth::check()){
+            $user = Auth::user();
+            Log::info('[ROOM] [DEVICE] user info: '.$user->toJson());
+
+            $room = $user->rooms()->find($id);
+            if(is_null($room)){
+                Log::error('[ROOM] [DEVICE] uid:'.$user->id.' no such item:'.$id);
+                return json_encode(array('error'=>104, 'reason'=>'no such item'));
+            }
+
+            $deviceIDs = $request->input('devices'); // devices:id1,id2,id3 ...
+            if(empty($deviceIDs)){
+                Log::error('[ROOM] [DEVICE] missing parameter [devices]');
+                return json_encode(array('error'=>201, 'reason'=>'missing parameter [devices]'));
+            }
+
+            foreach(explode(',', $deviceIDs) as $deviceID){
+                $device = Device::find($deviceID);
+                if(is_null($device)){
+                    Log::error('[ROOM] [DEVICE] uid:'.$user->id.' no such item:'.$deviceID);
+                    continue;
+                }
+                $device->room_id = $id;
+                $device->save();
+            }
+
+            $devices = Room::find($id)->devices->toArray();
+            $res = array();
+            $res['devices'] = $devices;
+            $res['error'] = 0;
+
+            return json_encode($res);
+        } else{
+            Log::error('[ROOM] [DEVICE] user is not login');
             return json_encode(array('error'=>100, 'reason'=>'user is not login'));
         }
     }
@@ -164,10 +234,11 @@ class ApiRoomController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('user info: '.$user->toJson());
+            Log::info('[ROOM] [DELETE] user info: '.$user->toJson());
 
             $room = $user->rooms()->find($id);
             if(is_null($room)){
+                Log::error('[ROOM] [DELETE] uid:'.$user->id.' no such item:'.$id);
                 return json_encode(array('error'=>104, 'reason'=>'no such item'));
             }
 
@@ -175,6 +246,7 @@ class ApiRoomController extends Controller
 
             return json_encode(array('error'=> 0));
         }else{
+            Log::error('[ROOM] [DELETE] user is not login');
             return json_encode(array('error'=>100, 'reason'=>'user is not login'));
         }
     }
