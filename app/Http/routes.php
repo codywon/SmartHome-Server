@@ -39,6 +39,8 @@ Route::group(['prefix' => 'api'], function(){
     Route::resource('device', 'ApiDeviceController',
                     ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
     Route::post('/device/action', 'ApiDeviceController@action');
+    Route::post('/device/discover', 'ApiDeviceController@discover');
+    Route::post('/device/status', 'ApiDeviceController@status');
     Route::post('/scene/{id}/open', 'ApiSceneController@open');
 
     Route::resource('room', 'ApiRoomController',

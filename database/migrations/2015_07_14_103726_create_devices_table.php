@@ -20,7 +20,8 @@ class CreateDevicesTable extends Migration
             $table->integer('type')->unsigned();
             $table->integer('brand')->nullable();
             $table->integer('model')->nullable();
-            $table->string('nodeID')->nullable();
+            $table->string('imei')->unique();
+            $table->string('nodeID');
             $table->string('address')->nullable();
             $table->boolean('infrared')->default(false);
             $table->integer('status')->default(0);

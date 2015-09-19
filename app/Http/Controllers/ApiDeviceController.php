@@ -68,6 +68,7 @@ class ApiDeviceController extends Controller
             $room_id = $request->input('room_id');
             $brand = $request->input('brand');
             $model = $request->input('model');
+            $imei = $request->input('imei');
             $nodeID = $request->input('nodeID');
             $address = $request->input('address');
             $bInfrared = $request->input('infrared') == 'true';
@@ -80,6 +81,7 @@ class ApiDeviceController extends Controller
                 'room_id' => $room_id,
                 'brand' => $brand,
                 'model' => $model,
+                'imei' => $imei,
                 'nodeID' => $nodeID,
                 'address' => $address,
                 'infrared' => $bInfrared,
@@ -149,8 +151,9 @@ class ApiDeviceController extends Controller
             }
 
             $params = array();
+            $params['type'] = 100;
             $params['devices'] = $devices;
-            DeviceCommand::run($user->id, $params);
+            DeviceCommand::sendMessage($user->id, $params, false, true);
 
             return json_encode(array('error'=>0));
             //foreach(explode(',', $devices) as $id_action){
@@ -162,6 +165,78 @@ class ApiDeviceController extends Controller
             //}
         }else{
             Log::error('[DEVICE] [ACTION] user is not login');
+            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+        }
+    }
+
+    public function discover(Request $request)
+    {
+        if(Auth::check()){
+            $user = Auth::user();
+            Log::info('[DEVICE] [DISCOVER] user info: '.$user->toJson());
+
+            $imei = $request->input('imei');
+            if(empty($imei)){
+                Log::error('[DEVICE] [DISCOVER] missing parameter [imei]');
+                return json_encode(array('error'=>201, 'reason'=>'missing parameter [imei]'));
+            }
+
+            $nodeID = $request->input('nodeID');
+            if(empty($nodeID)){
+                Log::error('[DEVICE] [DISCOVER] missing parameter [nodeID]');
+                return json_encode(array('error'=>201, 'reason'=>'missing parameter [nodeID]'));
+            }
+
+            $nodeType = $request->input('nodeType');
+            if(empty($nodeType)){
+                Log::error('[DEVICE] [DISCOVER] missing parameter [nodeType]');
+                return json_encode(array('error'=>201, 'reason'=>'missing parameter [nodeType]'));
+            }
+            Log::info('[DEVICE] [DISCOVER] nodeID['.$nodeID.'] imei['.$imei.'] nodeType['.$nodeType.']');
+
+            $params = array();
+            $params['type'] = 101;
+            $params['imei'] = $imei;
+            $params['nodeID'] = $nodeID;
+            $params['nodeType'] = $nodeType;
+
+            DeviceCommand::sendMessage($user->id, $params, true, false);
+
+            return json_encode(array('error'=>0));
+            //foreach(explode(',', $devices) as $id_action){
+            //    $arr = array();
+            //    parse_str($id_action, $arr);
+            //    foreach($arr as $deviceID=>$action){
+            //        // TODO perform operations on a certain device
+            //    }
+           //}
+        }else{
+            Log::error('[DEVICE] [DISCOVER] user is not login');
+            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+        }
+    }
+
+    public function status(Request $request)
+    {
+        if(Auth::check()){
+            $user = Auth::user();
+            Log::info('[DEVICE] [STATUS] user info: '.$user->toJson());
+
+            $devices = $request->input('devices');
+            if(empty($devices)){
+                Log::error('[DEVICE] [STATUS] missing parameter [devices]');
+                return json_encode(array('error'=>201, 'reason'=>'missing parameter [devices]'));
+            }
+
+            $params = array();
+            $params['type'] = 202;
+            $params['devices'] = $devices;
+
+            DeviceCommand::sendMessage($user->id, $params, true, false);
+
+            return json_encode(array('error'=>0));
+        }else{
+            Log::error('[DEVICE] [STATUS] user is not login');
             return json_encode(array('error'=>100, 'reason'=>'user is not login'));
         }
     }

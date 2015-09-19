@@ -137,8 +137,10 @@ class ApiSceneController extends Controller
             $devices = $scene->devices();
 
             $params = array();
+            $params['type'] = 100;
             $params['devices'] = $devices;
-            DeviceCommand::run($user->id, $params);
+
+            DeviceCommand::sendMessage($user->id, $params, false, true);
 
             return json_encode(array('error'=>0));
         }else{
