@@ -65,6 +65,7 @@ class ApiDeviceController extends Controller
 
             $name = $request->input('name');
             $type = $request->input('type');
+            $index = $request->input('index');
             $room_id = $request->input('room_id');
             $brand = $request->input('brand');
             $model = $request->input('model');
@@ -78,6 +79,7 @@ class ApiDeviceController extends Controller
             $device = new Device([
                 'name' => $name,
                 'type' => $type,
+                'index' => $index,
                 'room_id' => $room_id,
                 'brand' => $brand,
                 'model' => $model,
@@ -187,6 +189,12 @@ class ApiDeviceController extends Controller
                 return json_encode(array('error'=>201, 'reason'=>'missing parameter [nodeID]'));
             }
 
+            $index = $request->input('index');
+            if(empty($index)){
+                Log::error('[DEVICE] [DISCOVER] missing parameter [index]');
+                return json_encode(array('error'=>201, 'reason'=>'missing parameter [index]'));
+            }
+
             $nodeType = $request->input('nodeType');
             if(empty($nodeType)){
                 Log::error('[DEVICE] [DISCOVER] missing parameter [nodeType]');
@@ -198,6 +206,7 @@ class ApiDeviceController extends Controller
             $params['type'] = 101;
             $params['imei'] = $imei;
             $params['nodeID'] = $nodeID;
+            $params['index'] = $index;
             $params['nodeType'] = $nodeType;
 
             DeviceCommand::sendMessage($user->id, $params, true, false);

@@ -18,9 +18,10 @@ class CreateDevicesTable extends Migration
             $table->integer('room_id')->unsigned();
             $table->string('name');
             $table->integer('type')->unsigned();
+            $table->integer('index')->nullable();
             $table->integer('brand')->nullable();
             $table->integer('model')->nullable();
-            $table->string('imei')->unique();
+            $table->string('imei');
             $table->string('nodeID');
             $table->string('address')->nullable();
             $table->boolean('infrared')->default(false);
