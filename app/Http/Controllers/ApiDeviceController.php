@@ -191,7 +191,7 @@ class ApiDeviceController extends Controller
 
             $index = $request->input('index');
             if(empty($index)){
-                Log::error('[DEVICE] [DISCOVER] missing parameter [index]');
+                Log::error('[DEVICE] [DISCOVER] missing parameter [index]'.$index);
                 return json_encode(array('error'=>201, 'reason'=>'missing parameter [index]'));
             }
 
@@ -200,7 +200,7 @@ class ApiDeviceController extends Controller
                 Log::error('[DEVICE] [DISCOVER] missing parameter [nodeType]');
                 return json_encode(array('error'=>201, 'reason'=>'missing parameter [nodeType]'));
             }
-            Log::info('[DEVICE] [DISCOVER] nodeID['.$nodeID.'] imei['.$imei.'] nodeType['.$nodeType.']');
+            Log::info('[DEVICE] [DISCOVER] nodeID['.$nodeID.'] imei['.$imei.'] nodeType['.$nodeType.'] index['.$index.']');
 
             $params = array();
             $params['type'] = 101;

@@ -35,6 +35,7 @@ Route::group(['prefix' => 'api'], function(){
 
     Route::post('/login', 'ApiAuthController@login');
     Route::post('/register', 'ApiAuthController@register');
+    Route::post('/islogin', 'ApiAuthController@isLogin');
 
     Route::resource('device', 'ApiDeviceController',
                     ['only' => ['index', 'show', 'store', 'update', 'destroy']]);

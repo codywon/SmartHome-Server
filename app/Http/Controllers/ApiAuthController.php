@@ -102,4 +102,19 @@ class ApiAuthController extends Controller
         ]);
         return $this->login($request);
     }
+
+    public function isLogin()
+    {
+        if(Auth::check()){
+            $user = Auth::user();
+            Log::info('[DEVICE] [INDEX] user info: '.$user->toJson());
+
+            $res['login'] = true;
+            return json_encode($res);
+
+        }else{
+            Log::error('[DEVICE] [INDEX] user is not login');
+            return json_encode('login' => false);
+        }
+    }
 }
