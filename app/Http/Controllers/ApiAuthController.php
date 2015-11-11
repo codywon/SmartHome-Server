@@ -57,6 +57,7 @@ class ApiAuthController extends Controller
     public function register(Request $request){
         $email = $request->input('email');
         $name = $request->input('name');
+        $code = $request->input('code');
         $phone = $request->input('phone');
         $password = $request->input('password');
 
@@ -67,6 +68,17 @@ class ApiAuthController extends Controller
         if(!$email && !$phone){
             Log::info('register failed, email/phone is empty');
              return json_encode(array('error'=>105));
+        }
+
+        if(!$code){
+            Log::info('register failed, verify code is empty');
+             return json_encode(array('error'=>107));
+        }
+
+        if(!empty($phone)){
+            if(!SMS::validateSMSCode($phone, $code)){
+                return json_encode(array('error'=>123));
+            }
         }
 
         if(!$password){
@@ -114,7 +126,8 @@ class ApiAuthController extends Controller
 
         }else{
             Log::error('[DEVICE] [INDEX] user is not login');
-            return json_encode('login' => false);
+            $res['login'] = false;
+            return json_encode($res);
         }
     }
 }

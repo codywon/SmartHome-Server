@@ -74,6 +74,10 @@ class ApiDeviceController extends Controller
             $address = $request->input('address');
             $bInfrared = $request->input('infrared') == 'true';
 
+            if(empty($index)){
+                $index = -1;
+            }
+
             Log::info('[DEVICE] [ADD] infrared value: '.$request->input('infrared').'type: '.$type.'name: '.$name);
 
             $device = new Device([

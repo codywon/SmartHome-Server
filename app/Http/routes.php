@@ -37,6 +37,9 @@ Route::group(['prefix' => 'api'], function(){
     Route::post('/register', 'ApiAuthController@register');
     Route::post('/islogin', 'ApiAuthController@isLogin');
 
+    Route::post('/sms/apply', 'SMSController@apply');
+    Route::post('/sms/verify', 'SMSController@verify');
+
     Route::resource('device', 'ApiDeviceController',
                     ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
     Route::post('/device/action', 'ApiDeviceController@action');
