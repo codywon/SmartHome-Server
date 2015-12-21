@@ -36,6 +36,7 @@ Route::group(['prefix' => 'api'], function(){
     Route::post('/login', 'ApiAuthController@login');
     Route::post('/register', 'ApiAuthController@register');
     Route::post('/islogin', 'ApiAuthController@isLogin');
+    Route::post('/setpassword', 'ApiAuthController@setPassword');
 
     Route::post('/sms/apply', 'SMSController@apply');
     Route::post('/sms/verify', 'SMSController@verify');

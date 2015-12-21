@@ -21,11 +21,26 @@ class SMS
     {
         $verifyKey   = $phone.':VerifyCode';
         $intervalKey = $phone.':Interval';
-        $tiemout     = 30 * 60;     // 30 minutes
+        $timeout     = 30 * 60;     // 30 minutes
         $interval    = 120;         // could send another code after 120 second later
 
         Redis::command('set', [$verifyKey, $code, 'EX', $timeout]);
         Redis::command('set', [$intervalKey, 1, 'EX', $interval]);
+    }
+
+    public static function writeVerifyResultToRedis($phone, $bSuccess)
+    {
+        $key = $phone.':isChecked';
+        $timeout = 30 * 60;
+        $value = $bSuccess ? 1 : 0;
+
+        Redis::command('set', [$key, $value, 'EX', $timeout]);
+    }
+
+    public static function isChecked($phone)
+    {
+        $key = $phone.':isChecked';
+        return Redis::get($key) == 1;
     }
 
     public static function isEnableSendAnotherCode($phone)
@@ -38,10 +53,12 @@ class SMS
 
     public static function validateSMSCode($phone, $code)
     {
-        $verifyKey   = $phone.':VerifyCode';
+        $verifyKey = $phone.':VerifyCode';
         $value = Redis::get($verifyKey);
 
-        return $value == $code;
+        $res = ($value == $code);
+        SMS::writeVerifyResultToRedis($phone, $res);
+        return $res;
     }
 
     public static function sendSMSVerifyCode($phone)
@@ -59,17 +76,16 @@ class SMS
         $status = $response->getStatusCode();
         if($status == 200){
             $body = $response->getBody();
+            Log::info('response data:'.$body);
             $result = json_decode($body);
 
             if($result->{'code'} == 0){
-                Log::info('send sms success, phone['.$phone.']');
-
                 // write code to redis
                 SMS::writeVerifyCodeToRedis($phone, $code);
                 return true;
             }
 
-            Log::error('send sms failed, phone['.$phone.'] error['.$result->{'code'}.'] message['.$result->{'msg'}.']');
+            Log::error('send sms failed, phone['.$phone.'] error['.$result->{'code'}.'] message['.$result->{'msg'}.'] detail['.$result->{'detail'}.']');
         }else{
             // send sms failed
             Log::error('send sms failed, phone['.$phone.'] StatusCode['.$status.']');

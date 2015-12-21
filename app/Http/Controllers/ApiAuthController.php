@@ -3,6 +3,7 @@
 namespace smarthome\Http\Controllers;
 use Log;
 use Auth;
+use smarthome\SMS;
 use smarthome\User;
 use Illuminate\Http\Request;
 
@@ -18,13 +19,13 @@ class ApiAuthController extends Controller
         Log::info('email:'.$email.' phone:'.$phone.' password:'.$password);
 
         if(!$email && !$phone){
-            Log::info('register failed, email/phone is empty');
-             return json_encode(array('error'=>105));
+            Log::info('login failed, email/phone is empty');
+            return json_encode(array('error'=>105));
         }
 
         if(!$password){
-            Log::info('register failed, password is empty');
-             return json_encode(array('error'=>106));
+            Log::info('login failed, password is empty');
+            return json_encode(array('error'=>106));
         }
 
         if(!empty($email)){
@@ -43,12 +44,12 @@ class ApiAuthController extends Controller
         if(!empty($phone)){
             if (Auth::attempt(['phone' => $phone, 'password' => $password])) {
                 // Authentication passed...
-                Log::info('login successful');
+                Log::info('login successful by phone:'.$phone);
                 $res = $request->user()->toArray();
                 $res['error'] = 0;
                 return json_encode($res);
             }else{
-                Log::info('login failed');
+                Log::info('phone '.$phone.' login failed');
                 return json_encode(array('error'=>101));
             }
         }
@@ -63,27 +64,28 @@ class ApiAuthController extends Controller
 
         $bUserNameEmpty = false;
         if(!$name){
-             $name = "";
+            $name = "";
         }
         if(!$email && !$phone){
             Log::info('register failed, email/phone is empty');
-             return json_encode(array('error'=>105));
+            return json_encode(array('error'=>105));
         }
 
         if(!$code){
             Log::info('register failed, verify code is empty');
-             return json_encode(array('error'=>107));
+            return json_encode(array('error'=>107));
         }
 
         if(!empty($phone)){
             if(!SMS::validateSMSCode($phone, $code)){
+                Log::error('verify code is not matched');
                 return json_encode(array('error'=>123));
             }
         }
 
         if(!$password){
             Log::info('register failed, password is empty');
-             return json_encode(array('error'=>106));
+            return json_encode(array('error'=>106));
         }
 
         if(!$email){
@@ -91,19 +93,21 @@ class ApiAuthController extends Controller
         }
 
         if(!$phone){
-             $phone = "";
+            $phone = "";
         }
 
         Log::info('register info, name:'.$name.' email:'.$email.' phone:'.$phone.' password: '.$password);
 
         $bExistEmail= User::where('email', $email)->count() > 0;
         if($bExistEmail){
-             return json_encode(array('error'=>102, 'reason' => 'This email has already registed'));
+            Log::error('email['.$email.'] has alread registed');
+            return json_encode(array('error'=>102, 'reason' => 'This email has already registed'));
         }
 
         $bExistPhone= User::where('phone', $phone)->count() > 0;
         if($bExistPhone){
-             return json_encode(array('error'=>103, 'reason' => 'This phone number has already registed'));
+            Log::error('phone['.$phone.'] has alread registed')
+            return json_encode(array('error'=>103, 'reason' => 'This phone number has already registed'));
         }
 
         User::create([
@@ -130,4 +134,58 @@ class ApiAuthController extends Controller
             return json_encode($res);
         }
     }
+
+    public function setPassword(Request $request){
+        $email = $request->input('email');
+        $phone = $request->input('phone');
+        $password = $request->input('password');
+
+        if(!$password){
+            Log::info('set password failed, password is empty');
+            return json_encode(array('error'=>109));
+        }
+
+        if(!$email && !$phone){
+            Log::error('set password failed, phone/email is empty');
+            return json_encode(array('error'=>109));
+        }
+
+        if(!$email){
+            $email = "";
+        }
+
+        if(!$phone){
+            $phone = "";
+        }
+
+        Log::info('register info, name: email:'.$email.' phone:'.$phone.' password: '.$password);
+
+        if(!empty($email)){
+            $bExistEmail= User::where('email', $email)->count() > 0;
+            if(!$bExistEmail){
+                return json_encode(array('error'=>110));
+            }
+        }else{
+            $user = User::where('phone', $phone)->first();
+            $user->password = bcrypt($password);
+            $user->save();
+        }
+
+        if(!empty($phone)){
+            $bExistPhone= User::where('phone', $phone)->count() > 0;
+            if(!$bExistPhone){
+                return json_encode(array('error'=>110));
+            }
+        }else{
+            if(!SMS::isChecked($phone)){
+                return json_encode(array('error'=>124));
+            }
+            $user = User::where('phone', $phone)->first();
+            $user->password = bcrypt($password);
+            $user->save();
+        }
+
+        return $this->login($request);
+    }
 }
+
