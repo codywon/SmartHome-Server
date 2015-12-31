@@ -95,6 +95,7 @@ class SMSController extends Controller
             return json_encode(array('error'=>120));
         }
 
+        Log::info('phone['.$phone.'] apply verify code');
         if(!SMS::isEnableSendAnotherCode($phone)){
             return json_encode(array('error'=>122));
         }

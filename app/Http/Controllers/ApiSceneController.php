@@ -121,6 +121,31 @@ class ApiSceneController extends Controller
     {
         //
     }
+    /**
+    * Get the first six scene
+    */
+    public function firstsix()
+    {
+        if(Auth::check()){
+            $user = Auth::user();
+            Log::info('[SCENE] [FirstSix] user info: '.$user->toJson());
+
+            $res = array();
+            $res['error'] = 0;
+            $sceneIDs = SceneLRU::getFisrtSixScene($user->id);
+            foreach ($sceneIDs as $id){
+                $scene = $user->scenes()->find($id);
+                if(!is_null($scene)){
+                    $res[$id] = $scene->toArray();
+                }
+            }
+
+            return json_encode($res);
+        }else{
+            Log::error('[SCENE] [FirstSix] user is not login');
+            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+        }
+    }
 
     public function open(Request $request, $id)
     {
