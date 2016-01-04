@@ -35,12 +35,15 @@ Route::group(['prefix' => 'api'], function(){
 
     Route::post('/login', 'ApiAuthController@login');
     Route::post('/register', 'ApiAuthController@register');
-    Route::post('/islogin', 'ApiAuthController@isLogin');
-    Route::post('/modifyname', 'ApiAuthController@modifyNickname');
 
-    Route::post('/password/set', 'ApiAuthController@setPassword');
-    Route::post('/password/verify', 'ApiAuthController@verifyPassword');
-    Route::post('/password/modify', 'ApiAuthController@modifyPassword');
+    Route::post('/user/islogin', 'ApiUserController@isLogin');
+    Route::post('/user/modifyname', 'ApiUserController@modifyNickname');
+    Route::post('/user/avatar/upload', 'ApiUserController@uploadAvatar');
+    Route::get('/user/avatar/download', 'ApiUserController@downloadAvatar');
+
+    Route::post('/password/set', 'ApiUserController@setPassword');
+    Route::post('/password/verify', 'ApiUserController@verifyPassword');
+    Route::post('/password/modify', 'ApiUserController@modifyPassword');
 
     Route::post('/sms/apply', 'SMSController@apply');
     Route::post('/sms/verify', 'SMSController@verify');
@@ -51,6 +54,8 @@ Route::group(['prefix' => 'api'], function(){
     Route::post('/device/discover', 'ApiDeviceController@discover');
     Route::post('/device/status', 'ApiDeviceController@status');
 
+    Route::resource('scene', 'ApiSceneController',
+                    ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
     Route::post('/scene/{id}/open', 'ApiSceneController@open');
     Route::get('/scene/firstsix', 'ApiSceneController@firstsix');
 

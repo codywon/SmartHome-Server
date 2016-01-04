@@ -22,7 +22,7 @@ class ApiSceneController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('[SCENE] [INDEX] user info: '.$user->toJson());
+            Log::info('get all scenes, uid:'.$user->id);
 
             $scenes = $user->scenes->toArray();
             //foreach($user->devices() as $device){
@@ -36,7 +36,7 @@ class ApiSceneController extends Controller
             return json_encode($res);
 
         }else{
-            Log::error('[SCENE] [INDEX] user is not login');
+            Log::error('get all scenes failed, user is not login');
             return json_encode(array('error'=>100, 'reason'=>'user is not login'));
         }
     }
@@ -60,12 +60,11 @@ class ApiSceneController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('[SCENE] [ADD] user info: '.$user->toJson());
 
             $name = $request->input('name');
             $devices = $request->input('devices');
 
-            Log::info('[SCENE] [ADD] devices: '.$devices.'name: '.$name);
+            Log::info('add new scene, uid:'.$user->id.' name:'.$name.' devices:'.$devices);
 
             $scene = new Scene([
                 'name' => $name,
@@ -78,7 +77,7 @@ class ApiSceneController extends Controller
             $res['error'] = 0;
             return json_encode($res);
         }else{
-            Log::error('[SCENE] [ADD] user is not login');
+            Log::error('add new scene failed, user is not login');
             return json_encode(array('error'=>100, 'reason'=>'user is not login'));
         }
 
@@ -94,11 +93,11 @@ class ApiSceneController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('[SCENE] [QUERY] user info: '.$user->toJson());
+            Log::info('query scene, uid:'.$user->id.' scene id:'.$id);
 
             $scene = $user->scenes()->find($id);
             if(is_null($scene)){
-                Log::error('[SCENE] [QUERY] uid:'.$user->id.' no such item:'.$id);
+                Log::error('query scene, uid:'.$user->id.' no such item:'.$id);
                 return json_encode(array('error'=>104, 'reason'=>'no such item'));
             }
 
@@ -106,7 +105,7 @@ class ApiSceneController extends Controller
             $res['error'] = 0;
             return json_encode($res);
         }else{
-            Log::error('[SCENE] [QUERY] user is not login');
+            Log::error('query scene failed, user is not login');
             return json_encode(array('error'=>100, 'reason'=>'user is not login'));
         }
     }
@@ -128,7 +127,7 @@ class ApiSceneController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('[SCENE] [FirstSix] user info: '.$user->toJson());
+            Log::info('get first six scene, uid: '.$user->id);
 
             $res = array();
             $res['error'] = 0;
@@ -142,7 +141,7 @@ class ApiSceneController extends Controller
 
             return json_encode($res);
         }else{
-            Log::error('[SCENE] [FirstSix] user is not login');
+            Log::error('get first six scene failed, user is not login');
             return json_encode(array('error'=>100, 'reason'=>'user is not login'));
         }
     }
@@ -151,11 +150,11 @@ class ApiSceneController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('[SCENE] [UPDATE] user info: '.$user->toJson());
+            Log::info('open scene, uid: '.$user->id.' scene id:'.$id);
 
             $scene = $user->scenes()->find($id);
             if(is_null($scene)){
-                Log::error('[SCENE] [UPDATE] uid:'.$user->id.' no such item:'.$id);
+                Log::error('open scene failed, uid:'.$user->id.' no such item:'.$id);
                 return json_encode(array('error'=>104, 'reason'=>'no such item'));
             }
 
@@ -169,7 +168,7 @@ class ApiSceneController extends Controller
 
             return json_encode(array('error'=>0));
         }else{
-            Log::error('[SCENE] [UPDATE] user is not login');
+            Log::error('open scene failed, user is not login');
             return json_encode(array('error'=>100, 'reason'=>'user is not login'));
         }
     }
@@ -185,11 +184,11 @@ class ApiSceneController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('[SCENE] [UPDATE] user info: '.$user->toJson());
+            Log::info('update scene, uid:'.$user->id.' scene id:'.$id);
 
             $scene = $user->scenes()->find($id);
             if(is_null($scene)){
-                Log::error('[SCENE] [UPDATE] uid:'.$user->id.' no such item:'.$id);
+                Log::error('update scene failed, uid:'.$user->id.' no such item:'.$id);
                 return json_encode(array('error'=>104, 'reason'=>'no such item'));
             }
 
@@ -209,7 +208,7 @@ class ApiSceneController extends Controller
             $res['error'] = 0;
             return json_encode($res);
         }else{
-            Log::error('[SCENE] [UPDATE] user is not login');
+            Log::error('update scene failed, user is not login');
             return json_encode(array('error'=>100, 'reason'=>'user is not login'));
         }
     }
@@ -224,11 +223,11 @@ class ApiSceneController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('[SCENE] [DELETE] user info: '.$user->toJson());
+            Log::info('delete scene, uid: '.$user->id.' scene id:'.$id);
 
             $scene = $user->scenes()->find($id);
             if(is_null($scene)){
-                Log::error('[SCENE] [DELETE] uid:'.$user->id.' no such item:'.$id);
+                Log::error('delete scene failed, uid:'.$user->id.' no such item:'.$id);
                 return json_encode(array('error'=>104, 'reason'=>'no such item'));
             }
 
@@ -236,7 +235,7 @@ class ApiSceneController extends Controller
 
             return json_encode(array('error'=> 0));
         }else{
-            Log::error('[SCENE] [DELETE] user is not login');
+            Log::error('delete scene failed, user is not login');
             return json_encode(array('error'=>100, 'reason'=>'user is not login'));
         }
     }
