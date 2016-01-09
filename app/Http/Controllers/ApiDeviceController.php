@@ -11,6 +11,7 @@ use smarthome\Http\Controllers\Controller;
 
 use smarthome\Device;
 use smarthome\DeviceCommand;
+use smarthome\SearchDevice;
 
 class ApiDeviceController extends Controller
 {
@@ -78,6 +79,18 @@ class ApiDeviceController extends Controller
                 $index = -1;
             }
 
+            $count = Device::where('imei', '=', $imei)->where('index', '=', $index)->count();
+            if($count != 0){
+                Log::error('add device failed, has already added');
+                return json_encode(array('error'=>301, 'reason'=>'this device had already added'));
+            }
+
+            $count = Device::where('user_id', '=', $user->id)->where('name', '=', $name)->count();
+            if($count != 0){
+                Log::error('add device failed, the same name was added');
+                return json_encode(array('error'=>302, 'reason'=>'the same name was added'));
+            }
+
             Log::info('[DEVICE] [ADD] infrared value: '.$request->input('infrared').'type: '.$type.'name: '.$name);
 
             $device = new Device([
@@ -94,7 +107,11 @@ class ApiDeviceController extends Controller
                 'status' => 0,
             ]);
 
-            $user->devices()->save($device);
+            try{
+                $user->devices()->save($device);
+            }catch(Exception $e){
+
+            }
 
             $res = $device->toArray();
             $res['error'] = 0;
@@ -179,41 +196,43 @@ class ApiDeviceController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('[DEVICE] [DISCOVER] user info: '.$user->toJson());
+            Log::info('discover device, user info: '.$user->toJson());
 
             $imei = $request->input('imei');
             if(empty($imei)){
-                Log::error('[DEVICE] [DISCOVER] missing parameter [imei]');
+                Log::error('discover device, missing parameter [imei]');
                 return json_encode(array('error'=>201, 'reason'=>'missing parameter [imei]'));
             }
 
             $nodeID = $request->input('nodeID');
             if(empty($nodeID)){
-                Log::error('[DEVICE] [DISCOVER] missing parameter [nodeID]');
+                Log::error('discover device, missing parameter [nodeID]');
                 return json_encode(array('error'=>201, 'reason'=>'missing parameter [nodeID]'));
             }
 
             $index = $request->input('index');
             if(empty($index)){
-                Log::error('[DEVICE] [DISCOVER] missing parameter [index]'.$index);
+                Log::error('discover device, missing parameter [index]'.$index);
                 return json_encode(array('error'=>201, 'reason'=>'missing parameter [index]'));
             }
 
             $nodeType = $request->input('nodeType');
             if(empty($nodeType)){
-                Log::error('[DEVICE] [DISCOVER] missing parameter [nodeType]');
+                Log::error('discover device, missing parameter [nodeType]');
                 return json_encode(array('error'=>201, 'reason'=>'missing parameter [nodeType]'));
             }
-            Log::info('[DEVICE] [DISCOVER] nodeID['.$nodeID.'] imei['.$imei.'] nodeType['.$nodeType.'] index['.$index.']');
+            Log::info('discover device, nodeID['.$nodeID.'] imei['.$imei.'] nodeType['.$nodeType.'] index['.$index.']');
 
-            $params = array();
-            $params['type'] = 101;
-            $params['imei'] = $imei;
-            $params['nodeID'] = $nodeID;
-            $params['index'] = $index;
-            $params['nodeType'] = $nodeType;
+            $device = $imei.':'.$nodeID.':'.$index.':'.$nodeType;
+            SearchDevice::add($user->id, $device);
+            //$params = array();
+            //$params['type'] = 101;
+            //$params['imei'] = $imei;
+            //$params['nodeID'] = $nodeID;
+            //$params['index'] = $index;
+            //$params['nodeType'] = $nodeType;
 
-            DeviceCommand::sendMessage($user->id, $params, true, false);
+            //DeviceCommand::sendMessage($user->id, $params, true, false);
 
             return json_encode(array('error'=>0));
             //foreach(explode(',', $devices) as $id_action){
@@ -224,7 +243,56 @@ class ApiDeviceController extends Controller
             //    }
            //}
         }else{
-            Log::error('[DEVICE] [DISCOVER] user is not login');
+            Log::error('discover device, user is not login');
+            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+        }
+    }
+
+    public function search(Request $request)
+    {
+        if(Auth::check()){
+            $user = Auth::user();
+            Log::info('search device, uid: '.$user->id);
+
+            $params = array();
+            $params['type'] = 102;
+
+            DeviceCommand::sendMessage($user->id, $params, false, true);
+
+            $devices = array();
+            $startTime = time();
+            while(time() - $startTime <= 5){
+
+                // TODO check response from contoller
+                $values = SearchDevice::get($user->id);
+                if(count($values) == 0){
+                    sleep(1);
+                    continue;
+                }
+
+                foreach($values as $value){
+                    $deviceInfos = explode(":", $value);
+                    $device = array();
+                    $device['imei'] = $deviceInfos[0];
+                    $device['nodeID'] = $deviceInfos[1];
+                    $device['index'] = $deviceInfos[2];
+                    $device['nodeType'] = $deviceInfos[3];
+
+                    array_push($devices, $device);
+                }
+            }
+
+            // what a fucking bug !
+            ob_end_clean();
+
+            $res = array();
+            $res['devices'] = $devices;
+            $res['error'] = 0;
+
+            return json_encode($res);
+
+        }else{
+            Log::error('search device failed, user is not login');
             return json_encode(array('error'=>100, 'reason'=>'user is not login'));
         }
     }
@@ -233,11 +301,11 @@ class ApiDeviceController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('[DEVICE] [STATUS] user info: '.$user->toJson());
+            Log::info('query device status, user info: '.$user->toJson());
 
             $devices = $request->input('devices');
             if(empty($devices)){
-                Log::error('[DEVICE] [STATUS] missing parameter [devices]');
+                Log::error('query device status, missing parameter [devices]');
                 return json_encode(array('error'=>201, 'reason'=>'missing parameter [devices]'));
             }
 
@@ -249,7 +317,7 @@ class ApiDeviceController extends Controller
 
             return json_encode(array('error'=>0));
         }else{
-            Log::error('[DEVICE] [STATUS] user is not login');
+            Log::error('query device status, user is not login');
             return json_encode(array('error'=>100, 'reason'=>'user is not login'));
         }
     }

@@ -51,13 +51,14 @@ Route::group(['prefix' => 'api'], function(){
     Route::resource('device', 'ApiDeviceController',
                     ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
     Route::post('/device/action', 'ApiDeviceController@action');
+    Route::post('/device/search', 'ApiDeviceController@search');
     Route::post('/device/discover', 'ApiDeviceController@discover');
     Route::post('/device/status', 'ApiDeviceController@status');
 
     Route::resource('scene', 'ApiSceneController',
                     ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
     Route::post('/scene/{id}/open', 'ApiSceneController@open');
-    Route::get('/scene/firstsix', 'ApiSceneController@firstsix');
+    Route::get('/scene/query/firstsix', 'ApiSceneController@firstsix');
 
     Route::resource('room', 'ApiRoomController',
                     ['only' => ['index', 'show', 'store', 'update', 'destroy']]);

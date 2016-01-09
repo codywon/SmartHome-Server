@@ -10,6 +10,8 @@ use smarthome\Http\Requests;
 use smarthome\Http\Controllers\Controller;
 
 use smarthome\Scene;
+use smarthome\SceneLRU;
+use smarthome\DeviceCommand;
 
 class ApiSceneController extends Controller
 {
@@ -131,13 +133,21 @@ class ApiSceneController extends Controller
 
             $res = array();
             $res['error'] = 0;
-            $sceneIDs = SceneLRU::getFisrtSixScene($user->id);
+
+            $scenesArray = array();
+            $sceneIDs = SceneLRU::getFirstSixScene($user->id);
+            if(count($sceneIDs) == 0){
+                $res['scenes'] = $user->scenes->toArray();
+                return json_encode($res);
+            }
+
             foreach ($sceneIDs as $id){
                 $scene = $user->scenes()->find($id);
                 if(!is_null($scene)){
-                    $res[$id] = $scene->toArray();
+                    array_push($scenesArray, $scene->toJson());
                 }
             }
+            $res['scenes'] = $scenesArray;
 
             return json_encode($res);
         }else{
@@ -158,13 +168,15 @@ class ApiSceneController extends Controller
                 return json_encode(array('error'=>104, 'reason'=>'no such item'));
             }
 
-            $devices = $scene->devices();
+            $devices = $scene->devices;
 
             $params = array();
             $params['type'] = 100;
             $params['devices'] = $devices;
 
             DeviceCommand::sendMessage($user->id, $params, false, true);
+
+            ob_end_clean();
 
             return json_encode(array('error'=>0));
         }else{

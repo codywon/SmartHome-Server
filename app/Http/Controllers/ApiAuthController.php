@@ -6,6 +6,7 @@ use Auth;
 use smarthome\SMS;
 use smarthome\User;
 use smarthome\Scene;
+use smarthome\SceneLRU;
 use Illuminate\Http\Request;
 
 use smarthome\Http\Requests;
@@ -111,6 +112,7 @@ class ApiAuthController extends Controller
                 'default_icon' => $icons[$name],
             ]);
             $user->scenes()->save($scene);
+            SceneLRU::incr($user->id, $scene->id);
         }
         Log::debug('create default scene for user['.$user->name.']');
     }
