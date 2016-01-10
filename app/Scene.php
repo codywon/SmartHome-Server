@@ -13,7 +13,7 @@ class Scene extends Model
      *
      * @var array
      */
-    protected $fillable = ['name', 'is_default', 'default_icon', 'devices'];
+    protected $fillable = ['name', 'is_default', 'default_icon', 'devices', 'group'];
 
     /**
      * The attributes excluded from the model's JSON form.

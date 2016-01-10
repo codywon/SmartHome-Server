@@ -99,12 +99,12 @@ class ApiAuthController extends Controller
     private function createDefaultScene($user){
 
         $names = array("回家模式", "离家模式", "全开模式", "全关模式", "就餐模式", "安全模式");
-        $icons = array("回家模式" => "BeHome",
-                       "离家模式" => "LeaveHome",
-                       "全开模式" => "OpenAll",
-                       "全关模式" => "CloseAll",
-                       "就餐模式" => "Eat",
-                       "安全模式" => "Security");
+        $icons = array("回家模式" => 1,
+                       "离家模式" => 2,
+                       "全开模式" => 3,
+                       "全关模式" => 4,
+                       "就餐模式" => 5,
+                       "安全模式" => 6);
         foreach($names as $name){
             $scene = new Scene([
                 'name' => $name,

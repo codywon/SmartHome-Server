@@ -16,7 +16,9 @@ class CreateRoomsTable extends Migration
             $table->increments('id');
             $table->integer('user_id')->unsigned();
             $table->string('name');
-            $table->integer('floor')->nullable();
+            $table->integer('type');
+            $table->integer('floor');
+            $table->string('group')->nullable;
             $table->foreign('user_id')->references('id')->on('users');
             $table->timestamps();
         });

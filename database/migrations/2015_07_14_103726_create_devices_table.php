@@ -26,6 +26,7 @@ class CreateDevicesTable extends Migration
             $table->string('address')->nullable();
             $table->boolean('infrared')->default(false);
             $table->integer('status')->default(0);
+            $table->string('group')->nullable;
             $table->foreign('user_id')->references('id')->on('users');
             $table->timestamps();
         });

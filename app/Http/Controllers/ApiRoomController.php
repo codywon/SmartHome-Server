@@ -64,10 +64,12 @@ class ApiRoomController extends Controller
 
             $name = $request->input('name');
             $floor = $request->input('floor');
+            $type = $request->input('type');
 
             $room = new Room([
                 'name' => $name,
                 'floor' => $floor,
+                'type' => $type,
             ]);
 
             $user->rooms()->save($room);

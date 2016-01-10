@@ -20,6 +20,7 @@ class CreateMessagesTable extends Migration
             $table->string('title');
             $table->string('content');
             $table->boolean('read')->default(false);
+            $table->string('group')->nullable;
             $table->foreign('user_id')->references('id')->on('users');
             $table->timestamps();
         });

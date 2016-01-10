@@ -18,8 +18,9 @@ class CreateScenesTable extends Migration
             $table->string('name');
             $table->string('devices')->nullable();
             $table->string('icon')->nullable();
-            $table->string('default_icon')->nullable();
+            $table->integer('default_icon')->default(0);
             $table->boolean('is_default')->default(false);
+            $table->string('group')->nullable;
             $table->timestamps();
             $table->foreign('user_id')->references('id')->on('users');
         });

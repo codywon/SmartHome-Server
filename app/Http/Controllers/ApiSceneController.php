@@ -144,7 +144,7 @@ class ApiSceneController extends Controller
             foreach ($sceneIDs as $id){
                 $scene = $user->scenes()->find($id);
                 if(!is_null($scene)){
-                    array_push($scenesArray, $scene->toJson());
+                    array_push($scenesArray, $scene->toArray());
                 }
             }
             $res['scenes'] = $scenesArray;

@@ -8,7 +8,7 @@ class Device extends Model
 {
     protected $table = 'devices';
 
-    protected $fillable = ['name', 'room_id', 'type', 'index', 'infrared', 'brand', 'model', 'imei', 'nodeID', 'address', 'status'];
+    protected $fillable = ['name', 'room_id', 'type', 'index', 'infrared', 'brand', 'model', 'imei', 'nodeID', 'address', 'status', 'group'];
 
     public function user()
     {

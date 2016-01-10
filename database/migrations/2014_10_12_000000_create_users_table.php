@@ -19,6 +19,10 @@ class CreateUsersTable extends Migration
             $table->string('phone')->unique();
             $table->string('password', 60);
             $table->integer('role')->default(0);
+            $table->string('group')->nullable;
+            $table->string('group_password', 60)->nullable;
+            $table->boolean('sex')->default(true);
+            $table->string('address')->nullable;
             $table->rememberToken();
             $table->timestamps();
         });
