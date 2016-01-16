@@ -144,6 +144,8 @@ return [
         smarthome\Providers\EventServiceProvider::class,
         smarthome\Providers\RouteServiceProvider::class,
 
+        Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class,
+
     ],
 
     /*
