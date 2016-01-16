@@ -68,6 +68,11 @@ class ApiSceneController extends Controller
 
             Log::info('add new scene, uid:'.$user->id.' name:'.$name.' devices:'.$devices);
 
+            $count= Scene::where('user_id','=',$user->id)->where('name','=',$name)->count();
+            if($count != 0){
+                Log::error('create scene failed, user:'.$user->id.' already had scene with same name');
+                return json_encode(array('error'=>401, 'reason'=>'already had scene with same name'));
+            }
             $scene = new Scene([
                 'name' => $name,
                 'devices' => $devices,
@@ -176,6 +181,9 @@ class ApiSceneController extends Controller
 
             DeviceCommand::sendMessage($user->id, $params, false, true);
 
+            // increase clicked times
+            SceneLRU::incr($user->id, $scene->id);
+
             ob_end_clean();
 
             return json_encode(array('error'=>0));
@@ -206,12 +214,12 @@ class ApiSceneController extends Controller
 
             $name = $request->input("name");
             if(!empty($name)){
-                 $room->name = $name;
+                 $scene->name = $name;
             }
 
             $devices = $request->input("devices");
             if(!empty($devices)){
-                 $room->devices = $devices;
+                 $scene->devices = $devices;
             }
 
             $scene->save();

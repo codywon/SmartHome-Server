@@ -96,6 +96,44 @@ class ApiAuthController extends Controller
         return $this->login($request);
     }
 
+    public function setPassword(Request $request){
+        $email = $request->input('email');
+        $phone = $request->input('phone');
+        $password = $request->input('password');
+
+        if(!$password){
+            Log::info('set password failed, password is empty');
+            return json_encode(array('error'=>109));
+        }
+
+        if(!$email && !$phone){
+            Log::error('set password failed, phone/email is empty');
+            return json_encode(array('error'=>109));
+        }
+
+        if(!$email){
+            $email = "";
+        }
+
+        if(!$phone){
+            $phone = "";
+        }
+
+        Log::info('set password, name: email:'.$email.' phone:'.$phone);
+
+        if(!empty($phone)){
+            if(!SMS::isChecked($phone)){
+                Log::error('check verify code failed');
+                return json_encode(array('error'=>124));
+            }
+            $user = User::where('phone', $phone)->first();
+            $user->password = bcrypt($password);
+            $user->save();
+        }
+
+        return $this->login($request);
+    }
+
     private function createDefaultScene($user){
 
         $names = array("回家模式", "离家模式", "全开模式", "全关模式", "就餐模式", "安全模式");

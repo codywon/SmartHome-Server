@@ -41,7 +41,7 @@ Route::group(['prefix' => 'api'], function(){
     Route::post('/user/avatar/upload', 'ApiUserController@uploadAvatar');
     Route::get('/user/avatar/download', 'ApiUserController@downloadAvatar');
 
-    Route::post('/password/set', 'ApiUserController@setPassword');
+    Route::post('/password/set', 'ApiAuthController@setPassword');
     Route::post('/password/verify', 'ApiUserController@verifyPassword');
     Route::post('/password/modify', 'ApiUserController@modifyPassword');
 
