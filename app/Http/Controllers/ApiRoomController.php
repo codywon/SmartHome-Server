@@ -22,7 +22,7 @@ class ApiRoomController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('[ROOM] [INDEX] user info: '.$user->toJson());
+            Log::info('get all rooms, uid: '.$user->id);
 
             $rooms = $user->rooms->toArray();
             //foreach($user->devices() as $device){
@@ -36,8 +36,8 @@ class ApiRoomController extends Controller
             return json_encode($res);
 
         }else{
-            Log::error('[ROOM] [INDEX] user is not login');
-            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+            Log::error('get all rooms failed, user is not login');
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
         }
     }
 
@@ -60,7 +60,7 @@ class ApiRoomController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('[ROOM] [ADD] user info: '.$user->toJson());
+            Log::info('create room, uid: '.$user->id);
 
             $name = $request->input('name');
             $floor = $request->input('floor');
@@ -78,8 +78,8 @@ class ApiRoomController extends Controller
             $res['error'] = 0;
             return json_encode($res);
         }else{
-            Log::error('[ROOM] [ADD] user is not login');
-            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+            Log::error('create room failed, user is not login');
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
         }
 
     }
@@ -94,20 +94,20 @@ class ApiRoomController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('[ROOM] [QUERY] user info: '.$user->toJson());
+            Log::info('query room, uid: '.$user->id);
 
             $room = $user->rooms()->find($id);
             if(is_null($room)){
-                Log::error('[ROOM] [QUERY] uid:'.$user->id.' no such item:'.$id);
-                return json_encode(array('error'=>104, 'reason'=>'no such item'));
+                Log::error('query room, uid:'.$user->id.' no such item:'.$id);
+                return json_encode(array('error'=>104, 'reason'=>'未找到相应房间'));
             }
 
             $res = Room::find($id)->toArray();
             $res['error'] = 0;
             return json_encode($res);
         }else{
-            Log::error('[ROOM] [QUERY] user is not login');
-            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+            Log::error('query room failed, user is not login');
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
         }
     }
 
@@ -133,12 +133,12 @@ class ApiRoomController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('[ROOM] [UPDATE] user info: '.$user->toJson());
+            Log::info('update room, uid: '.$user->id);
 
             $room = $user->rooms()->find($id);
             if(is_null($room)){
-                Log::error('[ROOM] [UPDATE] uid:'.$user->id.' no such item:'.$id);
-                return json_encode(array('error'=>104, 'reason'=>'no such item'));
+                Log::error('update room, uid:'.$user->id.' no such item:'.$id);
+                return json_encode(array('error'=>104, 'reason'=>'未找到相应房间'));
             }
 
             $name = $request->input("name");
@@ -157,8 +157,8 @@ class ApiRoomController extends Controller
             $res['error'] = 0;
             return json_encode($res);
         }else{
-            Log::error('[ROOM] [UPDATE] user is not login');
-            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+            Log::error('update room failed, user is not login');
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
         }
     }
 
@@ -166,12 +166,12 @@ class ApiRoomController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('[ROOM] [DEVICE] user info: '.$user->toJson());
+            Log::info('get all devices in room, uid: '.$user->id);
 
             $room = $user->rooms()->find($id);
             if(is_null($room)){
-                Log::error('[ROOM] [DEVICE] uid:'.$user->id.' no such item:'.$id);
-                return json_encode(array('error'=>104, 'reason'=>'no such item'));
+                Log::error('get all devices in room, uid:'.$user->id.' no such item:'.$id);
+                return json_encode(array('error'=>104, 'reason'=>'未找到相应房间'));
             }
 
             $devices = Room::find($id)->devices->toArray();
@@ -181,8 +181,8 @@ class ApiRoomController extends Controller
 
             return json_encode($res);
         } else{
-            Log::error('[ROOM] [DEVICE] user is not login');
-            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+            Log::error('get all devices in room failed, user is not login');
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
         }
     }
 
@@ -190,24 +190,24 @@ class ApiRoomController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('[ROOM] [DEVICE] user info: '.$user->toJson());
+            Log::info('add device to room, uid: '.$user->id);
 
             $room = $user->rooms()->find($id);
             if(is_null($room)){
-                Log::error('[ROOM] [DEVICE] uid:'.$user->id.' no such item:'.$id);
-                return json_encode(array('error'=>104, 'reason'=>'no such item'));
+                Log::error('add device to room, uid:'.$user->id.' no such item:'.$id);
+                return json_encode(array('error'=>104, 'reason'=>'未找到相应房间'));
             }
 
             $deviceIDs = $request->input('devices'); // devices:id1,id2,id3 ...
             if(empty($deviceIDs)){
-                Log::error('[ROOM] [DEVICE] missing parameter [devices]');
-                return json_encode(array('error'=>201, 'reason'=>'missing parameter [devices]'));
+                Log::error('add device to room, missing parameter [devices]');
+                return json_encode(array('error'=>201, 'reason'=>'缺少参数 [devices]'));
             }
 
             foreach(explode(',', $deviceIDs) as $deviceID){
                 $device = Device::find($deviceID);
                 if(is_null($device)){
-                    Log::error('[ROOM] [DEVICE] uid:'.$user->id.' no such item:'.$deviceID);
+                    Log::error('add device to room, uid:'.$user->id.' no such item:'.$deviceID);
                     continue;
                 }
                 $device->room_id = $id;
@@ -221,8 +221,8 @@ class ApiRoomController extends Controller
 
             return json_encode($res);
         } else{
-            Log::error('[ROOM] [DEVICE] user is not login');
-            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+            Log::error('add device to room failed, user is not login');
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
         }
     }
 
@@ -236,20 +236,20 @@ class ApiRoomController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('[ROOM] [DELETE] user info: '.$user->toJson());
+            Log::info('delete room, uid: '.$user->id);
 
             $room = $user->rooms()->find($id);
             if(is_null($room)){
-                Log::error('[ROOM] [DELETE] uid:'.$user->id.' no such item:'.$id);
-                return json_encode(array('error'=>104, 'reason'=>'no such item'));
+                Log::error('delete room, uid:'.$user->id.' no such item:'.$id);
+                return json_encode(array('error'=>104, 'reason'=>'未找到相应房间'));
             }
 
             Room::destroy($id);
 
             return json_encode(array('error'=> 0));
         }else{
-            Log::error('[ROOM] [DELETE] user is not login');
-            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+            Log::error('delete room failed, user is not login');
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
         }
     }
 }

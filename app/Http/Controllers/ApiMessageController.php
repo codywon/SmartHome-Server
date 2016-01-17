@@ -22,7 +22,7 @@ class ApiMessageController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('[MESSAGE] [INDEX] user info: '.$user->toJson());
+            Log::info('get all messages, uid: '.$user->id);
 
             $messages = $user->messages->toArray();
             //foreach($user->devices() as $device){
@@ -36,7 +36,7 @@ class ApiMessageController extends Controller
             return json_encode($res);
 
         }else{
-            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
         }
     }
 
@@ -69,20 +69,20 @@ class ApiMessageController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('[MESSAGE] [QUERY] user info: '.$user->toJson());
+            Log::info('query message, user info: '.$user->toJson());
 
             $message = $user->messages()->find($id);
             if(is_null($message)){
-                Log::error('[MESSAGE] [QUERY] uid:'.$user->id.' no such item:'.$id);
-                return json_encode(array('error'=>104, 'reason'=>'no such item'));
+                Log::error('query message failed, uid:'.$user->id.' no such item:'.$id);
+                return json_encode(array('error'=>104, 'reason'=>'未找到相关消息'));
             }
 
             $res = Message::find($id)->toArray();
             $res['error'] = 0;
             return json_encode($res);
         }else{
-            Log::error('[MESSAGE] [QUERY] user is not login');
-            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+            Log::error('query message failed, user is not login');
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
         }
     }
 
@@ -108,12 +108,12 @@ class ApiMessageController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('[MESSAGE] [UPDATE] user info: '.$user->toJson());
+            Log::info('update message, uid: '.$user->id);
 
             $message = $user->messages()->find($id);
             if(is_null($message)){
-                Log::error('[MESSAGE] [UPDATE] uid:'.$user->id.' no such item:'.$id);
-                return json_encode(array('error'=>104, 'reason'=>'no such item'));
+                Log::error('update message failed, uid:'.$user->id.' no such item:'.$id);
+                return json_encode(array('error'=>104, 'reason'=>'用户未登陆'));
             }
 
             $read = $request->input("read");
@@ -127,8 +127,8 @@ class ApiMessageController extends Controller
             $res['error'] = 0;
             return json_encode($res);
         }else{
-            Log::error('[MESSAGE] [UPDATE] user is not login');
-            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+            Log::error('update message failed, user is not login');
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
         }
     }
 
@@ -142,20 +142,20 @@ class ApiMessageController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('[MESSAGE] [DELETE] user info: '.$user->toJson());
+            Log::info('delete message, uid: '.$user->id);
 
             $message = $user->messages()->find($id);
             if(is_null($message)){
-                Log::error('[MESSAGE] [DELETE] uid:'.$user->id.' no such item:'.$id);
-                return json_encode(array('error'=>104, 'reason'=>'no such item'));
+                Log::error('delete message failed, uid:'.$user->id.' no such item:'.$id);
+                return json_encode(array('error'=>104, 'reason'=>'未找到相关消息'));
             }
 
             Message::destroy($id);
 
             return json_encode(array('error'=> 0));
         }else{
-            Log::error('[MESSAGE] [DELETE] user is not login');
-            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+            Log::error('delete message failed, user is not login');
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
         }
     }
 }

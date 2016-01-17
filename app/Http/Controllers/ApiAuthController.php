@@ -22,12 +22,12 @@ class ApiAuthController extends Controller
 
         if(!$email && !$phone){
             Log::info('login failed, email/phone is empty');
-            return json_encode(array('error'=>105));
+            return json_encode(array('error'=>105, 'reason'=>'用户名不能为空'));
         }
 
         if(!$password){
             Log::info('login failed, password is empty');
-            return json_encode(array('error'=>106));
+            return json_encode(array('error'=>106, 'reason'=>'密码不能为空'));
         }
 
         if(!empty($email)){
@@ -39,7 +39,7 @@ class ApiAuthController extends Controller
                 return json_encode($res);
             }else{
                 Log::info('login failed');
-                return json_encode(array('error'=>101));
+                return json_encode(array('error'=>101, 'reason'=>'用户名/密码错误'));
             }
         }
 
@@ -52,7 +52,7 @@ class ApiAuthController extends Controller
                 return json_encode($res);
             }else{
                 Log::info('phone '.$phone.' login failed');
-                return json_encode(array('error'=>101));
+                return json_encode(array('error'=>101, 'reason'=>'用户名/密码错误'));
             }
         }
     }
@@ -64,12 +64,12 @@ class ApiAuthController extends Controller
 
         if(!$name || !$phone ){
             Log::info('register failed, nickname/phone is empty');
-            return json_encode(array('error'=>105));
+            return json_encode(array('error'=>105, 'reason'=>'用户名不能为空'));
         }
 
         if(!$password){
             Log::info('register failed, password is empty');
-            return json_encode(array('error'=>106));
+            return json_encode(array('error'=>106, 'reason'=>'密码不能为空'));
         }
 
         Log::info('register info, nickname:'.$name.' phone:'.$phone);
@@ -77,12 +77,12 @@ class ApiAuthController extends Controller
         $bExistPhone= User::where('phone', $phone)->count() > 0;
         if($bExistPhone){
             Log::error('phone['.$phone.'] has alread registed');
-            return json_encode(array('error'=>103, 'reason' => 'This phone number has already registed'));
+            return json_encode(array('error'=>103, 'reason' => '手机号已被注册'));
         }
 
         if(!SMS::isChecked($phone)){
             Log::error('check verify code failed');
-            return json_encode(array('error'=>124));
+            return json_encode(array('error'=>124, 'reason' => '验证码过期'));
         }
 
         $user = User::create([
@@ -103,12 +103,12 @@ class ApiAuthController extends Controller
 
         if(!$password){
             Log::info('set password failed, password is empty');
-            return json_encode(array('error'=>109));
+            return json_encode(array('error'=>109, 'reason' => '参数错误'));
         }
 
         if(!$email && !$phone){
             Log::error('set password failed, phone/email is empty');
-            return json_encode(array('error'=>109));
+            return json_encode(array('error'=>109, 'reason' => '参数错误'));
         }
 
         if(!$email){
@@ -124,7 +124,7 @@ class ApiAuthController extends Controller
         if(!empty($phone)){
             if(!SMS::isChecked($phone)){
                 Log::error('check verify code failed');
-                return json_encode(array('error'=>124));
+                return json_encode(array('error'=>124, 'reason' => '验证码过期'));
             }
             $user = User::where('phone', $phone)->first();
             $user->password = bcrypt($password);

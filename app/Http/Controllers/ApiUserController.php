@@ -107,7 +107,7 @@ class ApiUserController extends Controller
             return json_encode($res);
         }else{
             Log::error('modify nickname failed, user is not login');
-            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
         }
     }
 
@@ -133,12 +133,12 @@ class ApiUserController extends Controller
 
         if(!$phone){
             Log::info('wrong request parameters, phone is empty');
-            return json_encode(array('error'=>105));
+            return json_encode(array('error'=>105, 'reason'=>'用户名不能为空'));
         }
 
         if(!$password){
             Log::info('wrong request parameters, password is empty');
-            return json_encode(array('error'=>106));
+            return json_encode(array('error'=>106, 'reason'=>'密码不能为空'));
         }
 
         if(!empty($phone)){
@@ -149,7 +149,7 @@ class ApiUserController extends Controller
                 return json_encode($res);
             }else{
                 Log::info('phone '.$phone.' verify failed');
-                return json_encode(array('error'=>101));
+                return json_encode(array('error'=>101, 'reason'=>'用户名/密码错误'));
             }
         }
     }
@@ -161,7 +161,7 @@ class ApiUserController extends Controller
 
             if(!$password){
                 Log::info('set password failed, password is empty');
-                return json_encode(array('error'=>109));
+                return json_encode(array('error'=>109, 'reason'=>'参数错误'));
             }
 
             $user->password = bcrypt($password);
@@ -171,7 +171,7 @@ class ApiUserController extends Controller
             return json_encode($res);
         }else{
             Log::error('[ModifyPassword] user is not login');
-            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
         }
     }
 
@@ -185,14 +185,14 @@ class ApiUserController extends Controller
                 Log::info('upload avatar successful, uid:'.$user->id);
             }else{
                 Log::error('upload avatar failed, missing parameter: avatar');
-                return json_encode(array('error'=>201, 'reason'=>'missing parameter [avatar]'));
+                return json_encode(array('error'=>201, 'reason'=>'缺少参数 [avatar]'));
             }
 
             $res['error'] = 0;
             return json_encode($res);
         }else{
             Log::error('upload avatar failed, user is not login');
-            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
         }
     }
 
@@ -207,11 +207,11 @@ class ApiUserController extends Controller
                 return Response::make($fileContents, 200, array('Content-Type' => $contentType));
             }else{
                 Log::error('download avatar failed, file does not exist!');
-                return json_encode(array('error'=>131, 'reason'=>'avatar file does not exist'));
+                return json_encode(array('error'=>131, 'reason'=>'用户未上传头像'));
             }
         }else{
             Log::error('download avatar failed, user is not login');
-            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
         }
     }
 

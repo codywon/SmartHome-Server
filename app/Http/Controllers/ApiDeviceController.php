@@ -24,7 +24,7 @@ class ApiDeviceController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('[DEVICE] [INDEX] user info: '.$user->toJson());
+            Log::info('get all devices, uid: '.$user->id);
 
             $devices = $user->devices->toArray();
             //foreach($user->devices() as $device){
@@ -38,8 +38,8 @@ class ApiDeviceController extends Controller
             return json_encode($res);
 
         }else{
-            Log::error('[DEVICE] [INDEX] user is not login');
-            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+            Log::error('get all devices failed, user is not login');
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
         }
     }
 
@@ -62,7 +62,7 @@ class ApiDeviceController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('[DEVICE] [ADD] user info: '.$user->toJson());
+            Log::info('add device, uid: '.$user->id);
 
             $name = $request->input('name');
             $type = $request->input('type');
@@ -82,16 +82,16 @@ class ApiDeviceController extends Controller
             $count = Device::where('imei', '=', $imei)->where('index', '=', $index)->count();
             if($count != 0){
                 Log::error('add device failed, has already added');
-                return json_encode(array('error'=>301, 'reason'=>'this device had already added'));
+                return json_encode(array('error'=>301, 'reason'=>'该设备已经被添加'));
             }
 
             $count = Device::where('user_id', '=', $user->id)->where('name', '=', $name)->count();
             if($count != 0){
                 Log::error('add device failed, the same name was added');
-                return json_encode(array('error'=>302, 'reason'=>'the same name was added'));
+                return json_encode(array('error'=>302, 'reason'=>'该用户已经有相同名称的设备'));
             }
 
-            Log::info('[DEVICE] [ADD] infrared value: '.$request->input('infrared').'type: '.$type.'name: '.$name);
+            Log::info('add device, infrared value: '.$request->input('infrared').'type: '.$type.'name: '.$name);
 
             $device = new Device([
                 'name' => $name,
@@ -117,8 +117,8 @@ class ApiDeviceController extends Controller
             $res['error'] = 0;
             return json_encode($res);
         }else{
-            Log::error('[DEVICE] [ADD] user is not login');
-            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+            Log::error('add device failed, user is not login');
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
         }
 
     }
@@ -133,20 +133,20 @@ class ApiDeviceController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('[DEVICE] [QUERY] user info: '.$user->toJson());
+            Log::info('query device, uid: '.$user->id);
 
             $device = $user->devices()->find($id);
             if(is_null($device)){
-                Log::error('[DEVICE] [QUERY] uid:'.$user->id.' no such item:'.$id);
-                return json_encode(array('error'=>104, 'reason'=>'no such item'));
+                Log::error('query device failed, uid:'.$user->id.' no such item:'.$id);
+                return json_encode(array('error'=>104, 'reason'=>'未找到相应设备'));
             }
 
             $res = Device::find($id)->toArray();
             $res['error'] = 0;
             return json_encode($res);
         }else{
-            Log::error('[DEVICE] [QUERY] user is not login');
-            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+            Log::error('query device failed, user is not login');
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
         }
     }
 
@@ -165,12 +165,12 @@ class ApiDeviceController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('[DEVICE] [ACTION] user info: '.$user->toJson());
+            Log::info('operate device, uid: '.$user->id);
 
             $devices = $request->input('devices');
             if(empty($devices)){
-                Log::error('[DEVICE] [ACTION] missing parameter [devices]');
-                return json_encode(array('error'=>201, 'reason'=>'missing parameter [devices]'));
+                Log::error('operate device failed, missing parameter [devices]');
+                return json_encode(array('error'=>201, 'reason'=>'缺少参数 [devices]'));
             }
 
             $params = array();
@@ -187,8 +187,8 @@ class ApiDeviceController extends Controller
             //    }
             //}
         }else{
-            Log::error('[DEVICE] [ACTION] user is not login');
-            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+            Log::error('operate device failed, user is not login');
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
         }
     }
 
@@ -201,25 +201,25 @@ class ApiDeviceController extends Controller
             $imei = $request->input('imei');
             if(empty($imei)){
                 Log::error('discover device, missing parameter [imei]');
-                return json_encode(array('error'=>201, 'reason'=>'missing parameter [imei]'));
+                return json_encode(array('error'=>201, 'reason'=>'缺少参数 [imei]'));
             }
 
             $nodeID = $request->input('nodeID');
             if(empty($nodeID)){
                 Log::error('discover device, missing parameter [nodeID]');
-                return json_encode(array('error'=>201, 'reason'=>'missing parameter [nodeID]'));
+                return json_encode(array('error'=>201, 'reason'=>'缺少参数 [nodeID]'));
             }
 
             $index = $request->input('index');
             if(empty($index)){
                 Log::error('discover device, missing parameter [index]'.$index);
-                return json_encode(array('error'=>201, 'reason'=>'missing parameter [index]'));
+                return json_encode(array('error'=>201, 'reason'=>'缺少参数 [index]'));
             }
 
             $nodeType = $request->input('nodeType');
             if(empty($nodeType)){
                 Log::error('discover device, missing parameter [nodeType]');
-                return json_encode(array('error'=>201, 'reason'=>'missing parameter [nodeType]'));
+                return json_encode(array('error'=>201, 'reason'=>'缺少参数 [nodeType]'));
             }
             Log::info('discover device, nodeID['.$nodeID.'] imei['.$imei.'] nodeType['.$nodeType.'] index['.$index.']');
 
@@ -243,8 +243,8 @@ class ApiDeviceController extends Controller
             //    }
            //}
         }else{
-            Log::error('discover device, user is not login');
-            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+            Log::error('discover device failed, user is not login');
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
         }
     }
 
@@ -293,7 +293,7 @@ class ApiDeviceController extends Controller
 
         }else{
             Log::error('search device failed, user is not login');
-            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
         }
     }
 
@@ -305,8 +305,8 @@ class ApiDeviceController extends Controller
 
             $devices = $request->input('devices');
             if(empty($devices)){
-                Log::error('query device status, missing parameter [devices]');
-                return json_encode(array('error'=>201, 'reason'=>'missing parameter [devices]'));
+                Log::error('query device status failed, missing parameter [devices]');
+                return json_encode(array('error'=>201, 'reason'=>'缺少参数 [devices]'));
             }
 
             $params = array();
@@ -317,8 +317,8 @@ class ApiDeviceController extends Controller
 
             return json_encode(array('error'=>0));
         }else{
-            Log::error('query device status, user is not login');
-            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+            Log::error('query device status failed, user is not login');
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
         }
     }
     /**
@@ -332,12 +332,12 @@ class ApiDeviceController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('[DEVICE] [UPDATE] user info: '.$user->toJson());
+            Log::info('update deivce, uid: '.$user->id);
 
             $device = $user->devices()->find($id);
             if(is_null($device)){
-                Log::error('[DEVICE] [UPDATE] uid:'.$user->id.' no such item:'.$id);
-                return json_encode(array('error'=>104, 'reason'=>'no such item'));
+                Log::error('update device failed, uid:'.$user->id.' no such item:'.$id);
+                return json_encode(array('error'=>104, 'reason'=>'未找到相应设备'));
             }
 
             $name = $request->input("name");
@@ -380,8 +380,8 @@ class ApiDeviceController extends Controller
             $res['error'] = 0;
             return json_encode($res);
         }else{
-            Log::error('[DEVICE] [UPDATE] user is not login');
-            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+            Log::error('update device failed, user is not login');
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
         }
     }
 
@@ -395,20 +395,20 @@ class ApiDeviceController extends Controller
     {
         if(Auth::check()){
             $user = Auth::user();
-            Log::info('[DEVICE] [DELETE] user info: '.$user->toJson());
+            Log::info('delete device, uid: '.$user->id);
 
             $device = $user->devices()->find($id);
             if(is_null($device)){
-                Log::error('[DEVICE] [DELETE] uid:'.$user->id.' no such item:'.$id);
-                return json_encode(array('error'=>104, 'reason'=>'no such item'));
+                Log::error('delete device failed, uid:'.$user->id.' no such item:'.$id);
+                return json_encode(array('error'=>104, 'reason'=>'未找到相应设备'));
             }
 
             Device::destroy($id);
 
             return json_encode(array('error'=> 0));
         }else{
-            Log::error('[DEVICE] [DELETE] user is not login');
-            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+            Log::error('delete device failed, user is not login');
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
         }
     }
 }

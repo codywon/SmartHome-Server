@@ -39,7 +39,7 @@ class ApiSceneController extends Controller
 
         }else{
             Log::error('get all scenes failed, user is not login');
-            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
         }
     }
 
@@ -71,7 +71,7 @@ class ApiSceneController extends Controller
             $count= Scene::where('user_id','=',$user->id)->where('name','=',$name)->count();
             if($count != 0){
                 Log::error('create scene failed, user:'.$user->id.' already had scene with same name');
-                return json_encode(array('error'=>401, 'reason'=>'already had scene with same name'));
+                return json_encode(array('error'=>401, 'reason'=>'该用户已经有相同名称的情景模式'));
             }
             $scene = new Scene([
                 'name' => $name,
@@ -85,7 +85,7 @@ class ApiSceneController extends Controller
             return json_encode($res);
         }else{
             Log::error('add new scene failed, user is not login');
-            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
         }
 
     }
@@ -105,7 +105,7 @@ class ApiSceneController extends Controller
             $scene = $user->scenes()->find($id);
             if(is_null($scene)){
                 Log::error('query scene, uid:'.$user->id.' no such item:'.$id);
-                return json_encode(array('error'=>104, 'reason'=>'no such item'));
+                return json_encode(array('error'=>104, 'reason'=>'未找到相应情景模式'));
             }
 
             $res = Scene::find($id)->toArray();
@@ -113,7 +113,7 @@ class ApiSceneController extends Controller
             return json_encode($res);
         }else{
             Log::error('query scene failed, user is not login');
-            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
         }
     }
 
@@ -157,7 +157,7 @@ class ApiSceneController extends Controller
             return json_encode($res);
         }else{
             Log::error('get first six scene failed, user is not login');
-            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
         }
     }
 
@@ -170,7 +170,7 @@ class ApiSceneController extends Controller
             $scene = $user->scenes()->find($id);
             if(is_null($scene)){
                 Log::error('open scene failed, uid:'.$user->id.' no such item:'.$id);
-                return json_encode(array('error'=>104, 'reason'=>'no such item'));
+                return json_encode(array('error'=>104, 'reason'=>'未找到相应情景模式'));
             }
 
             $devices = $scene->devices;
@@ -189,7 +189,7 @@ class ApiSceneController extends Controller
             return json_encode(array('error'=>0));
         }else{
             Log::error('open scene failed, user is not login');
-            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
         }
     }
 
@@ -209,7 +209,7 @@ class ApiSceneController extends Controller
             $scene = $user->scenes()->find($id);
             if(is_null($scene)){
                 Log::error('update scene failed, uid:'.$user->id.' no such item:'.$id);
-                return json_encode(array('error'=>104, 'reason'=>'no such item'));
+                return json_encode(array('error'=>104, 'reason'=>'未找到相应情景模式'));
             }
 
             $name = $request->input("name");
@@ -229,7 +229,7 @@ class ApiSceneController extends Controller
             return json_encode($res);
         }else{
             Log::error('update scene failed, user is not login');
-            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
         }
     }
 
@@ -248,7 +248,7 @@ class ApiSceneController extends Controller
             $scene = $user->scenes()->find($id);
             if(is_null($scene)){
                 Log::error('delete scene failed, uid:'.$user->id.' no such item:'.$id);
-                return json_encode(array('error'=>104, 'reason'=>'no such item'));
+                return json_encode(array('error'=>104, 'reason'=>'未找到相应情景模式'));
             }
 
             Scene::destroy($id);
@@ -256,7 +256,7 @@ class ApiSceneController extends Controller
             return json_encode(array('error'=> 0));
         }else{
             Log::error('delete scene failed, user is not login');
-            return json_encode(array('error'=>100, 'reason'=>'user is not login'));
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
         }
     }
 }
