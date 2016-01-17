@@ -38,6 +38,7 @@ Route::group(['prefix' => 'api'], function(){
 
     Route::post('/user/islogin', 'ApiUserController@isLogin');
     Route::post('/user/modifyname', 'ApiUserController@modifyNickname');
+    Route::post('/user/modifysex', 'ApiUserController@modifySex');
     Route::post('/user/avatar/upload', 'ApiUserController@uploadAvatar');
     Route::get('/user/avatar/download', 'ApiUserController@downloadAvatar');
 

@@ -11,6 +11,7 @@ use Log;
 use Auth;
 use File;
 use Storage;
+use Illuminate\Http\Response;
 use smarthome\User;
 use smarthome\SMS;
 use GuzzleHttp\Client;
@@ -154,13 +155,41 @@ class ApiUserController extends Controller
         }
     }
 
+    public function modifySex(Request $request){
+        if(Auth::check()){
+            $user = Auth::user();
+            $sex = $request->input('sex');
+
+            if(!$sex){
+                Log::info('modify sex failed, parameter sex is empty');
+                return json_encode(array('error'=>109, 'reason'=>'参数错误'));
+            }
+
+            Log::info($sex);
+            if($sex == 'true'){
+                Log::info('modify sex as male, uid:'.$user->id);
+            }else{
+                Log::info('modify sex as female , uid:'.$user->id);
+            }
+
+            $user->sex = $sex == 'true' ? true : false;
+            $user->save();
+
+            $res['error'] = 0;
+            return json_encode($res);
+        }else{
+            Log::error('modify sex failed, user is not login');
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
+        }
+    }
+
     public function modifyPassword(Request $request){
         if(Auth::check()){
             $user = Auth::user();
             $password = $request->input('password');
 
             if(!$password){
-                Log::info('set password failed, password is empty');
+                Log::info('modify password failed, password is empty');
                 return json_encode(array('error'=>109, 'reason'=>'参数错误'));
             }
 
@@ -170,7 +199,7 @@ class ApiUserController extends Controller
             $res['error'] = 0;
             return json_encode($res);
         }else{
-            Log::error('[ModifyPassword] user is not login');
+            Log::error('modify password failed, user is not login');
             return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
         }
     }
@@ -200,13 +229,13 @@ class ApiUserController extends Controller
          if(Auth::check()){
             $user = Auth::user();
 
-            $filePath = storage_path().'avatars/'.$user->id.'.jpg';
+            $filePath = storage_path().'/app/avatars/'.$user->id.'.jpg';
             $contentType = 'image/jpeg';
             if(File::exists($filePath)){
-                $fileContents = File::get($filePath);
-                return Response::make($fileContents, 200, array('Content-Type' => $contentType));
+                //$fileContents = File::get($filePath);
+                return response()->download($filePath, $user->id.'.jpg', array('Content-Type' => $contentType));
             }else{
-                Log::error('download avatar failed, file does not exist!');
+                Log::error('download avatar failed, file['.$filePath.'] does not exist!');
                 return json_encode(array('error'=>131, 'reason'=>'用户未上传头像'));
             }
         }else{
