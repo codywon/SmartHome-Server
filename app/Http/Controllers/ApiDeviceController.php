@@ -67,6 +67,7 @@ class ApiDeviceController extends Controller
             $name = $request->input('name');
             $type = $request->input('type');
             $index = $request->input('index');
+            $status = $request->input('status');
             $room_id = $request->input('room_id');
             $brand = $request->input('brand');
             $model = $request->input('model');
@@ -104,7 +105,7 @@ class ApiDeviceController extends Controller
                 'nodeID' => $nodeID,
                 'address' => $address,
                 'infrared' => $bInfrared,
-                'status' => 0,
+                'status' => $status,
             ]);
 
             try{
@@ -112,6 +113,12 @@ class ApiDeviceController extends Controller
             }catch(Exception $e){
 
             }
+
+            $params = array();
+            $params['type'] = 103;
+            DeviceCommand::sendMessage($user->id, $params, false, true);
+
+            ob_end_clean();
 
             $res = $device->toArray();
             $res['error'] = 0;
@@ -172,11 +179,13 @@ class ApiDeviceController extends Controller
                 Log::error('operate device failed, missing parameter [devices]');
                 return json_encode(array('error'=>201, 'reason'=>'缺少参数 [devices]'));
             }
+            Log::info('operate device, devices: '.$devices);
 
             $params = array();
             $params['type'] = 100;
             $params['devices'] = $devices;
             DeviceCommand::sendMessage($user->id, $params, false, true);
+            ob_end_clean();
 
             return json_encode(array('error'=>0));
             //foreach(explode(',', $devices) as $id_action){
@@ -221,9 +230,15 @@ class ApiDeviceController extends Controller
                 Log::error('discover device, missing parameter [nodeType]');
                 return json_encode(array('error'=>201, 'reason'=>'缺少参数 [nodeType]'));
             }
-            Log::info('discover device, nodeID['.$nodeID.'] imei['.$imei.'] nodeType['.$nodeType.'] index['.$index.']');
 
-            $device = $imei.':'.$nodeID.':'.$index.':'.$nodeType;
+            $status = $request->input('status');
+            if(empty($status)){
+                Log::error('discover device, missing parameter [status]');
+                return json_encode(array('error'=>201, 'reason'=>'缺少参数 [status]'));
+            }
+            Log::info('discover device, nodeID['.$nodeID.'] imei['.$imei.'] nodeType['.$nodeType.'] index['.$index.'] status['.$status.']');
+
+            $device = $imei.':'.$nodeID.':'.$index.':'.$nodeType.':'.$status;
             SearchDevice::add($user->id, $device);
             //$params = array();
             //$params['type'] = 101;
@@ -261,7 +276,7 @@ class ApiDeviceController extends Controller
 
             $devices = array();
             $startTime = time();
-            while(time() - $startTime <= 5){
+            while(time() - $startTime <= 3){
 
                 // TODO check response from contoller
                 $values = SearchDevice::get($user->id);
@@ -277,6 +292,7 @@ class ApiDeviceController extends Controller
                     $device['nodeID'] = $deviceInfos[1];
                     $device['index'] = $deviceInfos[2];
                     $device['nodeType'] = $deviceInfos[3];
+                    $device['status'] = $deviceInfos[4];
 
                     array_push($devices, $device);
                 }
@@ -307,6 +323,19 @@ class ApiDeviceController extends Controller
             if(empty($devices)){
                 Log::error('query device status failed, missing parameter [devices]');
                 return json_encode(array('error'=>201, 'reason'=>'缺少参数 [devices]'));
+            }
+
+            foreach(explode(',', $devices) as $id_action){
+                $arr = array();
+                parse_str($id_action, $arr);
+                foreach($arr as $deviceID=>$action){
+                    // TODO perform operations on a certain device
+                    $device = Device::find($deviceID);
+                    if(is_null($device)){
+                        $device->status = $action;
+                        $device->save();
+                    }
+                }
             }
 
             $params = array();
