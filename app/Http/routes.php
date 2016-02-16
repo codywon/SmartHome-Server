@@ -50,19 +50,25 @@ Route::group(['prefix' => 'api'], function(){
     Route::post('/sms/verify', 'SMSController@verify');
 
     Route::resource('device', 'ApiDeviceController',
-                    ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
+                    ['only' => ['index', 'show', 'store']]);
+    Route::post('/device/update/{id}', 'ApiDeviceController@update');
+    Route::post('/device/delete/{id}', 'ApiDeviceController@destroy');
     Route::post('/device/action', 'ApiDeviceController@action');
     Route::post('/device/search', 'ApiDeviceController@search');
     Route::post('/device/discover', 'ApiDeviceController@discover');
     Route::post('/device/status', 'ApiDeviceController@status');
 
     Route::resource('scene', 'ApiSceneController',
-                    ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
-    Route::post('/scene/{id}/open', 'ApiSceneController@open');
+                    ['only' => ['index', 'show', 'store']]);
+    Route::post('/scene/update/{id}', 'ApiSceneController@update');
+    Route::post('/scene/delete/{id}', 'ApiSceneController@destroy');
+    Route::post('/scene/open/{id}', 'ApiSceneController@open');
     Route::get('/scene/query/firstsix', 'ApiSceneController@firstsix');
 
     Route::resource('room', 'ApiRoomController',
-                    ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
+                    ['only' => ['index', 'show', 'store']]);
+    Route::post('/room/update/{id}', 'ApiRoomController@update');
+    Route::post('/room/delete/{id}', 'ApiRoomController@destroy');
     Route::get('/room/{id}/device', 'ApiRoomController@getDevice');
     Route::post('/room/{id}/device', 'ApiRoomController@addDevice');
 
