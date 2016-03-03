@@ -298,6 +298,7 @@ class ApiUserController extends Controller
                         $currRoom = array();
                         $currRoom["name"] = $room->name;
                         $currRoom["room_id"] = $room->id;
+                        $currRoom["type"] = $room->type;
                         $deviceArray = $room->devices->toArray();
                         $currRoom["devices"] = $deviceArray;
 
