@@ -13,6 +13,8 @@ use File;
 use Storage;
 use Illuminate\Http\Response;
 use smarthome\User;
+use smarthome\Device;
+use smarthome\Room;
 use smarthome\SMS;
 use GuzzleHttp\Client;
 
@@ -258,5 +260,64 @@ class ApiUserController extends Controller
             $contentType = false;
 
          return $contentType;
+    }
+
+    public function control(){
+        if(Auth::check()){
+            $user = Auth::user();
+
+            $controlInfos = array();
+            $controlInfos['user_id'] = $user->id;
+
+            $floorArrays = array();
+
+            $rooms = $user->rooms;
+            foreach ($rooms as $room) {
+                $isExist = false;
+                foreach ($floorArrays as $floorArray) {
+                    if($floorArray["floor"] == $room->floor){
+                        $isExist = true;
+                        break;
+                    }
+                }
+
+                if(!$isExist){
+                    $floor = array();
+                    $floor["floor"] = $room->floor;
+                    $floor["rooms"] = array();
+                    array_push($floorArrays, $floor);
+                }
+            }
+
+            foreach ($rooms as $room) {
+                for($i=0; $i<count($floorArrays); $i++) {
+                    Log::info($room->name.' '.$room->floor.' '.$floorArrays[$i]["floor"]);
+                    if($floorArrays[$i]["floor"] == $room->floor){
+                        Log::info("equal");
+
+                        $currRoom = array();
+                        $currRoom["name"] = $room->name;
+                        $currRoom["room_id"] = $room->id;
+                        $deviceArray = $room->devices->toArray();
+                        $currRoom["devices"] = $deviceArray;
+
+                        Log::info('before:'.json_encode($floorArrays[$i]));
+                        array_push($floorArrays[$i]["rooms"], $currRoom);
+                        Log::info('after:'.json_encode($floorArrays[$i]));
+
+                        break;
+                    }
+                }
+            }
+
+            $res = array();
+            $res['error'] = 0;
+            $res["floors"] = $floorArrays;
+            return json_encode($res);
+
+        }else{
+            Log::error('download avatar failed, user is not login');
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
+        }
     }
 }

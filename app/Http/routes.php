@@ -64,6 +64,7 @@ Route::group(['prefix' => 'api'], function(){
     Route::post('/scene/delete/{id}', 'ApiSceneController@destroy');
     Route::post('/scene/open/{id}', 'ApiSceneController@open');
     Route::get('/scene/query/firstsix', 'ApiSceneController@firstsix');
+    Route::post('/scene/query/firstsix', 'ApiSceneController@firstsix');
 
     Route::resource('room', 'ApiRoomController',
                     ['only' => ['index', 'show', 'store']]);
@@ -71,5 +72,7 @@ Route::group(['prefix' => 'api'], function(){
     Route::post('/room/delete/{id}', 'ApiRoomController@destroy');
     Route::get('/room/{id}/device', 'ApiRoomController@getDevice');
     Route::post('/room/{id}/device', 'ApiRoomController@addDevice');
+
+    Route::get('/control', 'ApiUserController@control');
 
 });
