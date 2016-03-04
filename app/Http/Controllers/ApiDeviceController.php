@@ -181,6 +181,19 @@ class ApiDeviceController extends Controller
             }
             Log::info('operate device, devices: '.$devices);
 
+            foreach(explode(',', $devices) as $id_action){
+                $arr = array();
+                parse_str($id_action, $arr);
+                foreach($arr as $deviceID=>$action){
+                    // TODO perform operations on a certain device
+                    $device = Device::find($deviceID);
+                    if(!is_null($device)){
+                        $device->status = $action;
+                        $device->save();
+                    }
+                }
+            }
+
             $params = array();
             $params['type'] = 100;
             $params['devices'] = $devices;
@@ -331,7 +344,7 @@ class ApiDeviceController extends Controller
                 foreach($arr as $deviceID=>$action){
                     // TODO perform operations on a certain device
                     $device = Device::find($deviceID);
-                    if(is_null($device)){
+                    if(!is_null($device)){
                         $device->status = $action;
                         $device->save();
                     }

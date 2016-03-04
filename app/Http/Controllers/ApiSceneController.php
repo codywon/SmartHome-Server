@@ -175,8 +175,21 @@ class ApiSceneController extends Controller
 
             $devices = $scene->devices;
 
+            foreach(explode(';', $devices) as $id_action){
+                $arr = array();
+                parse_str($id_action, $arr);
+                foreach($arr as $deviceID=>$action){
+                    // TODO perform operations on a certain device
+                    $device = Device::find($deviceID);
+                    if(!is_null($device)){
+                        $device->status = $action;
+                        $device->save();
+                    }
+                }
+            }
+
             $params = array();
-            $params['type'] = 100;
+            $params['type'] = 104;
             $params['devices'] = $devices;
 
             DeviceCommand::sendMessage($user->id, $params, false, true);
