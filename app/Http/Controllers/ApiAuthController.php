@@ -72,6 +72,11 @@ class ApiAuthController extends Controller
             return json_encode(array('error'=>106, 'reason'=>'密码不能为空'));
         }
 
+        if(strlen($password) < 8){
+            Log::info('register failed, password is too short, at least eight');
+            return json_encode(array('error'=>108, 'reason'=>'密码长度不符合要求'));
+        }
+
         Log::info('register info, nickname:'.$name.' phone:'.$phone);
 
         $bExistPhone= User::where('phone', $phone)->count() > 0;
