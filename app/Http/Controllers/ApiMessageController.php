@@ -24,13 +24,23 @@ class ApiMessageController extends Controller
             $user = Auth::user();
             Log::info('get all messages, uid: '.$user->id);
 
+            $total = 0;
+            $messages = null;
+            if(empty($user->group)){
+                $messages = $user->messages->toArray();
+                $total = $user->messages->count();
+            }else{
+                $messages = Message::where('group', $user->group)->get()->toArray();
+                $total = Message::where('group', $user->group)->count();
+            }
+
             $messages = $user->messages->toArray();
             //foreach($user->devices() as $device){
             //    Log::info($device->toArray());
             //    array_push($res, $device->toArray());
             //}
             $res = array();
-            $res['total'] = $user->rooms->count();
+            $res['total'] = $total;
             $res['error'] = 0;
             $res['messages'] = $messages;
             return json_encode($res);
@@ -71,7 +81,13 @@ class ApiMessageController extends Controller
             $user = Auth::user();
             Log::info('query message, user info: '.$user->toJson());
 
-            $message = $user->messages()->find($id);
+            $message = null;
+            if(empty($user->group)){
+                $message = $user->message()->find($id);
+            }else{
+                $message = Message::where('group', $user->group)->get()->find($id);
+            }
+
             if(is_null($message)){
                 Log::error('query message failed, uid:'.$user->id.' no such item:'.$id);
                 return json_encode(array('error'=>104, 'reason'=>'未找到相关消息'));
@@ -110,7 +126,13 @@ class ApiMessageController extends Controller
             $user = Auth::user();
             Log::info('update message, uid: '.$user->id);
 
-            $message = $user->messages()->find($id);
+            $message = null;
+            if(empty($user->group)){
+                $message = $user->message()->find($id);
+            }else{
+                $message = Message::where('group', $user->group)->get()->find($id);
+            }
+
             if(is_null($message)){
                 Log::error('update message failed, uid:'.$user->id.' no such item:'.$id);
                 return json_encode(array('error'=>104, 'reason'=>'用户未登陆'));
@@ -144,7 +166,13 @@ class ApiMessageController extends Controller
             $user = Auth::user();
             Log::info('delete message, uid: '.$user->id);
 
-            $message = $user->messages()->find($id);
+//            $message = null;
+//            if(empty($user->group)){
+//                $message = $user->$message()->find($id);
+//            }else{
+//                $message = Message::where('group', $user->group)->get()->find($id);
+//            }
+            $message = $user->message()->find($id);
             if(is_null($message)){
                 Log::error('delete message failed, uid:'.$user->id.' no such item:'.$id);
                 return json_encode(array('error'=>104, 'reason'=>'未找到相关消息'));

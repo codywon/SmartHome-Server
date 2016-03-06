@@ -75,4 +75,12 @@ Route::group(['prefix' => 'api'], function(){
 
     Route::get('/control', 'ApiUserController@control');
 
+    Route::post('/group', 'ApiGroupController@store');
+    Route::post('/group/join', 'ApiGroupController@join');
+    Route::post('/group/quit', 'ApiGroupController@quit');
+    Route::post('/group/query', 'ApiGroupController@show');
+    Route::post('/group/resetpassword', 'ApiGroupController@resetpassword');
+    Route::post('/group/destory', 'ApiGroupController@destroy');
+    Route::post('/group/remove/{username}', 'ApiGroupController@remove');
+
 });

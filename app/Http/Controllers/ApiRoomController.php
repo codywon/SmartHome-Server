@@ -24,13 +24,22 @@ class ApiRoomController extends Controller
             $user = Auth::user();
             Log::info('get all rooms, uid: '.$user->id);
 
-            $rooms = $user->rooms->toArray();
+            $total = 0;
+            $rooms = null;
+            if(empty($user->group)){
+                $rooms = $user->rooms->toArray();
+                $total = $user->rooms->count();
+            }else{
+                $rooms = Room::where('group', $user->group)->get()->toArray();
+                $total = Room::where('group', $user->group)->count();
+            }
+
             //foreach($user->devices() as $device){
             //    Log::info($device->toArray());
             //    array_push($res, $device->toArray());
             //}
             $res = array();
-            $res['total'] = $user->rooms->count();
+            $res['total'] = $total;
             $res['error'] = 0;
             $res['rooms'] = $rooms;
             return json_encode($res);
@@ -70,6 +79,7 @@ class ApiRoomController extends Controller
                 'name' => $name,
                 'floor' => $floor,
                 'type' => $type,
+                'group' => $user->group,
             ]);
 
             $user->rooms()->save($room);
@@ -96,13 +106,19 @@ class ApiRoomController extends Controller
             $user = Auth::user();
             Log::info('query room, uid: '.$user->id);
 
-            $room = $user->rooms()->find($id);
+            $room = null;
+            if(empty($user->group)){
+                $room = $user->rooms()->find($id);
+            }else{
+                $room = Room::where('group', $user->group)->get()->find($id);
+            }
+
             if(is_null($room)){
                 Log::error('query room, uid:'.$user->id.' no such item:'.$id);
                 return json_encode(array('error'=>104, 'reason'=>'未找到相应房间'));
             }
 
-            $res = Room::find($id)->toArray();
+            $res = $room->toArray();
             $res['error'] = 0;
             return json_encode($res);
         }else{
@@ -135,7 +151,13 @@ class ApiRoomController extends Controller
             $user = Auth::user();
             Log::info('update room, uid: '.$user->id);
 
-            $room = $user->rooms()->find($id);
+            $room = null;
+            if(empty($user->group)){
+                $room = $user->rooms()->find($id);
+            }else{
+                $room = Room::where('group', $user->group)->get()->find($id);
+            }
+
             if(is_null($room)){
                 Log::error('update room, uid:'.$user->id.' no such item:'.$id);
                 return json_encode(array('error'=>104, 'reason'=>'未找到相应房间'));
@@ -168,13 +190,19 @@ class ApiRoomController extends Controller
             $user = Auth::user();
             Log::info('get all devices in room, uid: '.$user->id);
 
-            $room = $user->rooms()->find($id);
+            $room = null;
+            if(empty($user->group)){
+                $room = $user->rooms()->find($id);
+            }else{
+                $room = Room::where('group', $user->group)->get()->find($id);
+            }
+
             if(is_null($room)){
                 Log::error('get all devices in room, uid:'.$user->id.' no such item:'.$id);
                 return json_encode(array('error'=>104, 'reason'=>'未找到相应房间'));
             }
 
-            $devices = Room::find($id)->devices->toArray();
+            $devices = $room->devices->toArray();
             $res = array();
             $res['devices'] = $devices;
             $res['error'] = 0;
@@ -192,7 +220,13 @@ class ApiRoomController extends Controller
             $user = Auth::user();
             Log::info('add device to room, uid: '.$user->id);
 
-            $room = $user->rooms()->find($id);
+            $room = null;
+            if(empty($user->group)){
+                $room = $user->rooms()->find($id);
+            }else{
+                $room = Room::where('group', $user->group)->get()->find($id);
+            }
+
             if(is_null($room)){
                 Log::error('add device to room, uid:'.$user->id.' no such item:'.$id);
                 return json_encode(array('error'=>104, 'reason'=>'未找到相应房间'));
@@ -238,6 +272,12 @@ class ApiRoomController extends Controller
             $user = Auth::user();
             Log::info('delete room, uid: '.$user->id);
 
+//            $room = null;
+//            if(empty($user->group)){
+//                $room = $user->rooms()->find($id);
+//            }else{
+//                $room = Room::where('group', $user->group)->get()->find($id);
+//            }
             $room = $user->rooms()->find($id);
             if(is_null($room)){
                 Log::error('delete room, uid:'.$user->id.' no such item:'.$id);

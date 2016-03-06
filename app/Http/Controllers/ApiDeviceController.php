@@ -26,13 +26,21 @@ class ApiDeviceController extends Controller
             $user = Auth::user();
             Log::info('get all devices, uid: '.$user->id);
 
-            $devices = $user->devices->toArray();
+            $total = 0;
+            $devices = null;
+            if(empty($user->group)){
+                $devices = $user->devices->toArray();
+                $total = $user->devices->count();
+            }else{
+                $devices = Device::where('group', $user->group)->get()->toArray();
+                $total = Device::where('group', $user->group)->count();
+            }
             //foreach($user->devices() as $device){
             //    Log::info($device->toArray());
             //    array_push($res, $device->toArray());
             //}
             $res = array();
-            $res['total'] = $user->devices->count();
+            $res['total'] = $total;
             $res['error'] = 0;
             $res['devices'] = $devices;
             return json_encode($res);
@@ -106,6 +114,7 @@ class ApiDeviceController extends Controller
                 'address' => $address,
                 'infrared' => $bInfrared,
                 'status' => $status,
+                'group' => $user->group,
             ]);
 
             try{
@@ -142,7 +151,12 @@ class ApiDeviceController extends Controller
             $user = Auth::user();
             Log::info('query device, uid: '.$user->id);
 
-            $device = $user->devices()->find($id);
+            $device = null;
+            if(empty($user->group)){
+                $device = $user->devices()->find($id);
+            }else{
+                $device = Device::where('group', $user->group)->get()->find($id);
+            }
             if(is_null($device)){
                 Log::error('query device failed, uid:'.$user->id.' no such item:'.$id);
                 return json_encode(array('error'=>104, 'reason'=>'未找到相应设备'));
@@ -376,7 +390,12 @@ class ApiDeviceController extends Controller
             $user = Auth::user();
             Log::info('update deivce, uid: '.$user->id);
 
-            $device = $user->devices()->find($id);
+            $device = null;
+            if(empty($user->group)){
+                $device = $user->devices()->find($id);
+            }else{
+                $device = Device::where('group', $user->group)->get()->find($id);
+            }
             if(is_null($device)){
                 Log::error('update device failed, uid:'.$user->id.' no such item:'.$id);
                 return json_encode(array('error'=>104, 'reason'=>'未找到相应设备'));
@@ -439,6 +458,12 @@ class ApiDeviceController extends Controller
             $user = Auth::user();
             Log::info('delete device, uid: '.$user->id);
 
+//            $device = null;
+//            if(empty($user->group)){
+//                $device = $user->devices()->find($id);
+//            }else{
+//                $device = Device::where('group', $user->group)->get()->find($id);
+//            }
             $device = $user->devices()->find($id);
             if(is_null($device)){
                 Log::error('delete device failed, uid:'.$user->id.' no such item:'.$id);

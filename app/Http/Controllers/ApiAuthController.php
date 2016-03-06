@@ -62,7 +62,7 @@ class ApiAuthController extends Controller
         $phone = $request->input('phone');
         $password = $request->input('password');
 
-        if(!$name || !$phone ){
+        if(empty($name) || empty($phone) ){
             Log::info('register failed, nickname/phone is empty');
             return json_encode(array('error'=>105, 'reason'=>'用户名不能为空'));
         }
@@ -78,6 +78,12 @@ class ApiAuthController extends Controller
         }
 
         Log::info('register info, nickname:'.$name.' phone:'.$phone);
+
+        $bExistName = User::where('name', $name)->count() > 0;
+        if($bExistName){
+            Log::error('name['.$name.'] has alread registed');
+            return json_encode(array('error'=>102, 'reason' => '昵称已被注册'));
+        }
 
         $bExistPhone= User::where('phone', $phone)->count() > 0;
         if($bExistPhone){

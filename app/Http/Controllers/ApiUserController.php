@@ -10,6 +10,7 @@ use smarthome\Http\Controllers\Controller;
 use Log;
 use Auth;
 use File;
+use smarthome\Security;
 use Storage;
 use Illuminate\Http\Response;
 use smarthome\User;
@@ -148,9 +149,15 @@ class ApiUserController extends Controller
             if (Auth::attempt(['phone' => $phone, 'password' => $password])) {
                 // Authentication passed...
                 Log::info('verify password successful for phone:'.$phone);
+
+                // write result to redis
+                Security::writeVerifyResultToRedis($phone, true);
+
                 $res['error'] = 0;
                 return json_encode($res);
             }else{
+                Security::writeVerifyResultToRedis($phone, false);
+
                 Log::info('phone '.$phone.' verify failed');
                 return json_encode(array('error'=>101, 'reason'=>'用户名/密码错误'));
             }

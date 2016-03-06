@@ -12,6 +12,7 @@ use smarthome\Http\Controllers\Controller;
 use smarthome\Scene;
 use smarthome\SceneLRU;
 use smarthome\DeviceCommand;
+use smarthome\SceneLRUByGroup;
 
 class ApiSceneController extends Controller
 {
@@ -26,13 +27,24 @@ class ApiSceneController extends Controller
             $user = Auth::user();
             Log::info('get all scenes, uid:'.$user->id);
 
-            $scenes = $user->scenes->toArray();
+            $scenes = null;
+            $total = 0;
+            if(empty($user->group)){
+                $scenes = $user->scenes->toArray();
+                $total = $user->scenes->count();
+                Log::info('total:'.$total.' scenes:'.json_encode($scenes));
+            }else{
+                $scenes = Scene::where('group', $user->group)->get()->toArray();
+                $total = Scene::where('group', $user->group)->count();
+                Log::info('group mode, total:'.$total.' scenes:'.json_encode($scenes));
+            }
+
             //foreach($user->devices() as $device){
             //    Log::info($device->toArray());
             //    array_push($res, $device->toArray());
             //}
             $res = array();
-            $res['total'] = $user->scenes->count();
+            $res['total'] = $total;
             $res['error'] = 0;
             $res['scenes'] = $scenes;
             return json_encode($res);
@@ -76,6 +88,7 @@ class ApiSceneController extends Controller
             $scene = new Scene([
                 'name' => $name,
                 'devices' => $devices,
+                'group' => $user->group,
             ]);
 
             $user->scenes()->save($scene);
@@ -102,7 +115,13 @@ class ApiSceneController extends Controller
             $user = Auth::user();
             Log::info('query scene, uid:'.$user->id.' scene id:'.$id);
 
-            $scene = $user->scenes()->find($id);
+            $scene = null;
+            if(empty($user->group)){
+                $scene = $user->scenes()->find($id);
+            }else{
+                $scene = Scene::where('group', $user->group)->get()->find($id);
+            }
+
             if(is_null($scene)){
                 Log::error('query scene, uid:'.$user->id.' no such item:'.$id);
                 return json_encode(array('error'=>104, 'reason'=>'未找到相应情景模式'));
@@ -140,8 +159,14 @@ class ApiSceneController extends Controller
             $res['error'] = 0;
 
             $scenesArray = array();
-            $sceneIDs = SceneLRU::getFirstSixScene($user->id);
-            if(count($sceneIDs) == 0){
+            $sceneIDs = null;
+            if(empty($user->group)){
+                $sceneIDs = SceneLRU::getFirstSixScene($user->id);
+            }else{
+                $sceneIDs = SceneLRUByGroup::getFirstSixScene($user->group);
+            }
+
+            if(count($sceneIDs) < 6){
                 $res['scenes'] = $user->scenes->toArray();
                 return json_encode($res);
             }
@@ -167,7 +192,13 @@ class ApiSceneController extends Controller
             $user = Auth::user();
             Log::info('open scene, uid: '.$user->id.' scene id:'.$id);
 
-            $scene = $user->scenes()->find($id);
+            $scene = null;
+            if(empty($user->group)){
+                $scene = $user->scenes()->find($id);
+            }else{
+                $scene = Scene::where('group', $user->group)->get()->find($id);
+            }
+
             if(is_null($scene)){
                 Log::error('open scene failed, uid:'.$user->id.' no such item:'.$id);
                 return json_encode(array('error'=>104, 'reason'=>'未找到相应情景模式'));
@@ -195,7 +226,11 @@ class ApiSceneController extends Controller
             DeviceCommand::sendMessage($user->id, $params, false, true);
 
             // increase clicked times
-            SceneLRU::incr($user->id, $scene->id);
+            if(empty($user->group)){
+                SceneLRU::incr($user->id, $scene->id);
+            }else{
+                SceneLRUByGroup::incr($user->group, $scene->id);
+            }
 
             ob_end_clean();
 
@@ -219,7 +254,13 @@ class ApiSceneController extends Controller
             $user = Auth::user();
             Log::info('update scene, uid:'.$user->id.' scene id:'.$id);
 
-            $scene = $user->scenes()->find($id);
+            $scene = null;
+            if(empty($user->group)){
+                $scene = $user->scenes()->find($id);
+            }else{
+                $scene = Scene::where('group', $user->group)->get()->find($id);
+            }
+
             if(is_null($scene)){
                 Log::error('update scene failed, uid:'.$user->id.' no such item:'.$id);
                 return json_encode(array('error'=>104, 'reason'=>'未找到相应情景模式'));
@@ -258,6 +299,12 @@ class ApiSceneController extends Controller
             $user = Auth::user();
             Log::info('delete scene, uid: '.$user->id.' scene id:'.$id);
 
+//            $scene = null;
+//            if(empty($user->group)){
+//                $scene = $user->scenes()->find($id);
+//            }else{
+//                $scene = Scene::where('group', $user->group)->get()->find($id);
+//            }
             $scene = $user->scenes()->find($id);
             if(is_null($scene)){
                 Log::error('delete scene failed, uid:'.$user->id.' no such item:'.$id);
