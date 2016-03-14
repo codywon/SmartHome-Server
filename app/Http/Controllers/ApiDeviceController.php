@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use smarthome\Http\Requests;
 use smarthome\Http\Controllers\Controller;
 
+use smarthome\Trigger;
 use smarthome\User;
 use smarthome\Device;
 use smarthome\DeviceCommand;
@@ -375,6 +376,23 @@ class ApiDeviceController extends Controller
                     if(!is_null($device)){
                         $device->status = $action;
                         $device->save();
+
+                        // check trigger rules
+                        $triggers = Trigger::where('condition_device', '=', $device->id)->where('condition_action', '=', $action)->get();
+                        if(!is_null($triggers)){
+                            foreach ($triggers as $trigger) {
+                                $params = array();
+                                $params['type'] = 100;
+                                $params['devices'] = $trigger->trigger_device.'='.$trigger->trigger_action;
+                                if(empty($user->group) || $user->role == 1){
+                                    DeviceCommand::sendMessage($user->id, $params, false, true);
+                                }else{
+                                    $groupAdmin = User::where('group', '=', $user->group)->where('role', '=', 1)->first();
+                                    DeviceCommand::sendMessage($groupAdmin->id, $params, false, true);
+                                }
+                                ob_end_clean();
+                            }
+                        }
                     }
                 }
             }
