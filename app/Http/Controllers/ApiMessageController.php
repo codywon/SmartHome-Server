@@ -166,13 +166,12 @@ class ApiMessageController extends Controller
             $user = Auth::user();
             Log::info('delete message, uid: '.$user->id);
 
-//            $message = null;
-//            if(empty($user->group)){
-//                $message = $user->$message()->find($id);
-//            }else{
-//                $message = Message::where('group', $user->group)->get()->find($id);
-//            }
-            $message = $user->message()->find($id);
+            $message = null;
+            if(empty($user->group)){
+                $message = $user->$message()->find($id);
+            }else{
+                $message = Message::where('group', $user->group)->get()->find($id);
+            }
             if(is_null($message)){
                 Log::error('delete message failed, uid:'.$user->id.' no such item:'.$id);
                 return json_encode(array('error'=>104, 'reason'=>'未找到相关消息'));

@@ -83,4 +83,10 @@ Route::group(['prefix' => 'api'], function(){
     Route::post('/group/destory', 'ApiGroupController@destroy');
     Route::post('/group/remove/{username}', 'ApiGroupController@remove');
 
+
+    Route::get('/trigger', 'ApiTriggerController@index');
+    Route::post('/trigger', 'ApiTriggerController@store');
+    Route::get('/trigger/{id}', 'ApiTriggerController@show');
+    Route::post('/trigger/delete/{id}', 'ApiTriggerController@destroy');
+    Route::post('/trigger/update/{id}', 'ApiTriggerController@update');
 });

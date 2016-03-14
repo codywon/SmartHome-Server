@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use smarthome\Http\Requests;
 use smarthome\Http\Controllers\Controller;
 
+use smarthome\User;
 use smarthome\Device;
 use smarthome\DeviceCommand;
 use smarthome\SearchDevice;
@@ -211,7 +212,12 @@ class ApiDeviceController extends Controller
             $params = array();
             $params['type'] = 100;
             $params['devices'] = $devices;
-            DeviceCommand::sendMessage($user->id, $params, false, true);
+            if(empty($user->group) || $user->role == 1){
+                DeviceCommand::sendMessage($user->id, $params, false, true);
+            }else{
+                $groupAdmin = User::where('group', '=', $user->group)->where('role', '=', 1)->first();
+                DeviceCommand::sendMessage($groupAdmin->id, $params, false, true);
+            }
             ob_end_clean();
 
             return json_encode(array('error'=>0));
@@ -301,6 +307,7 @@ class ApiDeviceController extends Controller
 
             DeviceCommand::sendMessage($user->id, $params, false, true);
 
+            $deviceKey = array();
             $devices = array();
             $startTime = time();
             while(time() - $startTime <= 3){
@@ -314,6 +321,12 @@ class ApiDeviceController extends Controller
 
                 foreach($values as $value){
                     $deviceInfos = explode(":", $value);
+
+                    $key = $deviceInfos[0].$deviceInfos[1].$deviceInfos[2].$deviceInfos[3];
+                    if(in_array($key, $deviceKey)){
+                         continue;
+                    }
+
                     $device = array();
                     $device['imei'] = $deviceInfos[0];
                     $device['nodeID'] = $deviceInfos[1];
@@ -322,6 +335,7 @@ class ApiDeviceController extends Controller
                     $device['status'] = $deviceInfos[4];
 
                     array_push($devices, $device);
+                    array_push($deviceKey, $key);
                 }
             }
 

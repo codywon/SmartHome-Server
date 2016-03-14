@@ -299,13 +299,12 @@ class ApiSceneController extends Controller
             $user = Auth::user();
             Log::info('delete scene, uid: '.$user->id.' scene id:'.$id);
 
-//            $scene = null;
-//            if(empty($user->group)){
-//                $scene = $user->scenes()->find($id);
-//            }else{
-//                $scene = Scene::where('group', $user->group)->get()->find($id);
-//            }
-            $scene = $user->scenes()->find($id);
+            $scene = null;
+            if(empty($user->group)){
+                $scene = $user->scenes()->find($id);
+            }else{
+                $scene = Scene::where('group', $user->group)->get()->find($id);
+            }
             if(is_null($scene)){
                 Log::error('delete scene failed, uid:'.$user->id.' no such item:'.$id);
                 return json_encode(array('error'=>104, 'reason'=>'未找到相应情景模式'));

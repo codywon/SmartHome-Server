@@ -272,13 +272,12 @@ class ApiRoomController extends Controller
             $user = Auth::user();
             Log::info('delete room, uid: '.$user->id);
 
-//            $room = null;
-//            if(empty($user->group)){
-//                $room = $user->rooms()->find($id);
-//            }else{
-//                $room = Room::where('group', $user->group)->get()->find($id);
-//            }
-            $room = $user->rooms()->find($id);
+            $room = null;
+            if(empty($user->group)){
+                $room = $user->rooms()->find($id);
+            }else{
+                $room = Room::where('group', $user->group)->get()->find($id);
+            }
             if(is_null($room)){
                 Log::error('delete room, uid:'.$user->id.' no such item:'.$id);
                 return json_encode(array('error'=>104, 'reason'=>'未找到相应房间'));
