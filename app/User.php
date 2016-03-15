@@ -56,4 +56,5 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
     public function triggers()
     {
         return $this->hasMany('smarthome\Trigger');
+    }
 }
