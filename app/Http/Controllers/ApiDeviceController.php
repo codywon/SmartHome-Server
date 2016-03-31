@@ -273,7 +273,12 @@ class ApiDeviceController extends Controller
             Log::info('discover device, nodeID['.$nodeID.'] imei['.$imei.'] nodeType['.$nodeType.'] index['.$index.'] status['.$status.']');
 
             $device = $imei.':'.$nodeID.':'.$index.':'.$nodeType.':'.$status;
-            SearchDevice::add($user->id, $device);
+
+            $key = $user->id;
+            if(!empty($user->group)){
+                $key = $user->group;
+            }
+            SearchDevice::add($key, $device);
             //$params = array();
             //$params['type'] = 101;
             //$params['imei'] = $imei;
@@ -314,7 +319,11 @@ class ApiDeviceController extends Controller
             while(time() - $startTime <= 3){
 
                 // TODO check response from contoller
-                $values = SearchDevice::get($user->id);
+                $key = $user->id;
+                if(!empty($user->group)){
+                     $key = $user->group;
+                }
+                $values = SearchDevice::get($key);
                 if(count($values) == 0){
                     sleep(1);
                     continue;

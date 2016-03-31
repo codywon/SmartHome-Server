@@ -213,6 +213,25 @@ class ApiUserController extends Controller
         }
     }
 
+    public function registerLocalServer(Request $request){
+         if(Auth::check()){
+            $user = Auth::user();
+
+            $address = $request->input("address");
+            if(!empty($address)){
+                $user->address = $address;
+                $user->save();
+            }
+
+            $res['error'] = 0;
+            return json_encode($res);
+        }else{
+            Log::error('upload avatar failed, user is not login');
+            return json_encode(array('error'=>100, 'reason'=>'用户未登陆'));
+        }
+    }
+
+
     public function uploadAvatar(Request $request){
          if(Auth::check()){
             $user = Auth::user();

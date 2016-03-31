@@ -36,6 +36,8 @@ Route::group(['prefix' => 'api'], function(){
     Route::post('/login', 'ApiAuthController@login');
     Route::post('/register', 'ApiAuthController@register');
 
+    Route::post('/user/registerserver', 'ApiUserController@registerLocalServer');
+
     Route::post('/user/islogin', 'ApiUserController@isLogin');
     Route::post('/user/modifyname', 'ApiUserController@modifyNickname');
     Route::post('/user/modifysex', 'ApiUserController@modifySex');
@@ -50,7 +52,7 @@ Route::group(['prefix' => 'api'], function(){
     Route::post('/sms/verify', 'SMSController@verify');
 
     Route::resource('device', 'ApiDeviceController',
-                    ['only' => ['index', 'show', 'store']]);
+                    ['only' => ['index', 'show', 'store', 'destroy']]);
     Route::post('/device/update/{id}', 'ApiDeviceController@update');
     Route::post('/device/delete/{id}', 'ApiDeviceController@destroy');
     Route::post('/device/action', 'ApiDeviceController@action');
@@ -59,7 +61,7 @@ Route::group(['prefix' => 'api'], function(){
     Route::post('/device/status', 'ApiDeviceController@status');
 
     Route::resource('scene', 'ApiSceneController',
-                    ['only' => ['index', 'show', 'store']]);
+                    ['only' => ['index', 'show', 'store', 'destroy']]);
     Route::post('/scene/update/{id}', 'ApiSceneController@update');
     Route::post('/scene/delete/{id}', 'ApiSceneController@destroy');
     Route::post('/scene/open/{id}', 'ApiSceneController@open');
@@ -67,7 +69,7 @@ Route::group(['prefix' => 'api'], function(){
     Route::post('/scene/query/firstsix', 'ApiSceneController@firstsix');
 
     Route::resource('room', 'ApiRoomController',
-                    ['only' => ['index', 'show', 'store']]);
+                    ['only' => ['index', 'show', 'store', 'destroy']]);
     Route::post('/room/update/{id}', 'ApiRoomController@update');
     Route::post('/room/delete/{id}', 'ApiRoomController@destroy');
     Route::get('/room/{id}/device', 'ApiRoomController@getDevice');
